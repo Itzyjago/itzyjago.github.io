@@ -8,11 +8,18 @@
   var yearEl = document.getElementById('year');
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
-  /* ---- sticky nav background on scroll ---- */
+  /* ---- sticky nav + scroll progress bar ---- */
   var nav = document.getElementById('nav');
+  var scrollbar = document.getElementById('scrollbar');
   function onScroll() {
-    if (window.scrollY > 30) nav.classList.add('scrolled');
+    var y = window.scrollY || window.pageYOffset;
+    if (y > 30) nav.classList.add('scrolled');
     else nav.classList.remove('scrolled');
+    if (scrollbar) {
+      var h = document.documentElement.scrollHeight - window.innerHeight;
+      var p = h > 0 ? y / h : 0;
+      scrollbar.style.transform = 'scaleX(' + Math.min(1, Math.max(0, p)) + ')';
+    }
   }
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
