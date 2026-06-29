@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#36f1cd"/>
+      <stop offset="1" stop-color="#7c5cff"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="20%" cy="20%" r="60%">
+      <stop offset="0" stop-color="#36f1cd" stop-opacity="0.25"/>
+      <stop offset="1" stop-color="#07080d" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="#07080d"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <text x="80" y="250" font-family="monospace" font-size="34" fill="#36f1cd">&lt;/&gt; carlo ditalo</text>
+  <text x="78" y="360" font-family="'Space Grotesk', sans-serif" font-size="92" font-weight="700" fill="#e7e9f0">Full-Stack &amp;</text>
+  <text x="78" y="465" font-family="'Space Grotesk', sans-serif" font-size="92" font-weight="700" fill="url(#g)">AI Automation Dev</text>
+  <text x="80" y="545" font-family="sans-serif" font-size="32" fill="#9aa0b4">Laravel · Next.js · React · FastAPI · Claude API</text>
+</svg>
