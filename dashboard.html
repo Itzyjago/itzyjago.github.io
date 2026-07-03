@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>District Watch — live visitors</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --void:#07080d; --ink:#0d1019; --teal:#36f1cd; --purple:#7c5cff;
+      --ember:#ff8a5c; --paper:#e8ecf8; --dim:#9aa3bd;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:var(--void); color:var(--paper); font-family:'Inter',sans-serif; min-height:100vh; }
+    .wrap { max-width:880px; margin:0 auto; padding:40px 20px; }
+    h1 { font-family:'Space Grotesk',sans-serif; font-size:24px; display:flex; align-items:center; gap:12px; }
+    h1 .jp { font-size:14px; color:var(--dim); font-weight:500; letter-spacing:.2em; }
+    .sub { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--dim); letter-spacing:.15em; margin:6px 0 28px; }
+    .count {
+      display:flex; align-items:baseline; gap:14px; margin-bottom:26px;
+      border:1px solid rgba(255,138,92,.3); background:rgba(20,10,8,.4);
+      border-radius:16px; padding:20px 24px;
+    }
+    .count b { font-family:'Space Grotesk',sans-serif; font-size:46px; color:var(--ember); line-height:1; }
+    .count span { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.2em; color:var(--dim); }
+    .count .dot { width:10px;height:10px;border-radius:50%;background:var(--ember);box-shadow:0 0 12px var(--ember);animation:pulse 2s infinite; align-self:center;}
+    @keyframes pulse { 50% { opacity:.35 } }
+    table { width:100%; border-collapse:collapse; }
+    th {
+      font-family:'JetBrains Mono',monospace; font-size:9.5px; letter-spacing:.2em; text-transform:uppercase;
+      color:var(--dim); text-align:left; padding:10px 12px; border-bottom:1px solid rgba(232,236,248,.1);
+    }
+    td { padding:12px; font-size:13.5px; border-bottom:1px solid rgba(232,236,248,.05); }
+    td .mono { font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--dim); }
+    .sec { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--teal); letter-spacing:.08em; }
+    .empty { color:var(--dim); text-align:center; padding:44px 0; font-size:14px; }
+    .keybox { max-width:420px; margin:14vh auto 0; text-align:center; }
+    .keybox h1 { justify-content:center; margin-bottom:10px; }
+    .keybox p { color:var(--dim); font-size:13.5px; margin-bottom:20px; }
+    input {
+      width:100%; background:var(--ink); border:1px solid rgba(232,236,248,.14); border-radius:10px;
+      padding:13px 15px; color:var(--paper); font-family:'JetBrains Mono',monospace; font-size:13px; margin-bottom:12px;
+    }
+    input:focus { outline:none; border-color:var(--teal); }
+    button {
+      width:100%; background:var(--teal); color:#041210; border:none; border-radius:10px; padding:13px;
+      font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:14px; cursor:pointer;
+    }
+    .err { color:#ff7d7d; font-size:12.5px; min-height:16px; margin-top:8px; }
+    .top { display:flex; justify-content:space-between; align-items:flex-start; }
+    .signout { background:none; border:1px solid rgba(232,236,248,.15); color:var(--dim); width:auto; padding:8px 14px; font-size:12px; border-radius:8px; }
+    .hidden { display:none; }
+    a { color:var(--teal); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div id="gate" class="keybox hidden">
+      <h1>District Watch</h1>
+      <p>Enter the dashboard key to see who's walking your city right now.</p>
+      <input id="keyInput" type="password" placeholder="dashboard key" autocomplete="current-password" />
+      <button id="keyGo">Open the watchtower</button>
+      <p class="err" id="keyErr"></p>
+    </div>
+
+    <div id="deck" class="hidden">
+      <div class="top">
+        <div>
+          <h1>District Watch</h1>
+          <p class="sub">LIVE VISITORS ON ITZYJAGO.GITHUB.IO · REFRESHES EVERY 5S</p>
+        </div>
+        <button class="signout" id="signout">Sign out</button>
+      </div>
+      <div class="count"><span class="dot"></span><b id="n">0</b><span>IN THE DISTRICT<br/>RIGHT NOW</span></div>
+      <table>
+        <thead><tr><th>Visitor</th><th>Where</th><th>Viewing</th><th>Came from</th><th>Time on site</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <p class="empty hidden" id="empty">The streets are quiet. Nobody's in the district right now.</p>
+      <p class="err" id="deckErr"></p>
+    </div>
+  </div>
+
+  <script>
+    const API = location.hostname.endsWith('.netlify.app') || ['localhost', '127.0.0.1'].includes(location.hostname)
+      ? '/api/presence'
+      : (window.NETLIFY_SITE_OVERRIDE || '') + '/api/presence';
+
+    const STOP_NAMES = {
+      hero: '01 · ARRIVAL', services: '02 · SERVICES', about: '03 · HQ',
+      projects: '04 · EMPIRE DISTRICT', skills: '05 · CONSTRUCTION', contact: '06 · ROOFTOP',
+    };
+    const gate = document.getElementById('gate');
+    const deck = document.getElementById('deck');
+    let key = null;
+    try { key = localStorage.getItem('dwKey'); } catch {}
+    if (location.hash.startsWith('#key=')) {
+      key = decodeURIComponent(location.hash.slice(5));
+      try { localStorage.setItem('dwKey', key); } catch {}
+      history.replaceState(null, '', location.pathname);
+    }
+
+    function flag(cc) {
+      if (!cc || cc.length !== 2) return '🌐';
+      return String.fromCodePoint(...[...cc.toUpperCase()].map(c => 0x1F1A5 + c.charCodeAt(0)));
+    }
+    function fmtDur(ms) {
+      const s = Math.max(0, Math.floor(ms / 1000));
+      return `${Math.floor(s / 60)}m ${String(s % 60).padStart(2, '0')}s`;
+    }
+    function esc(x) { const d = document.createElement('span'); d.textContent = String(x ?? ''); return d.innerHTML; }
+
+    let timer = null;
+    async function poll() {
+      try {
+        const res = await fetch(`${API}?key=${encodeURIComponent(key)}`, { cache: 'no-store' });
+        if (res.status === 403) { signout('Wrong key.'); return; }
+        if (!res.ok) throw new Error(res.status);
+        const data = await res.json();
+        document.getElementById('deckErr').textContent = '';
+        document.getElementById('n').textContent = data.n;
+        const rows = document.getElementById('rows');
+        document.getElementById('empty').classList.toggle('hidden', data.visitors.length > 0);
+        rows.innerHTML = data.visitors.map(v => `
+          <tr>
+            <td>${flag(v.cc)} <span class="mono">${esc(v.dev)} · ${esc(v.bro)}</span></td>
+            <td>${esc([v.city, v.country].filter(Boolean).join(', ') || 'Unknown')}</td>
+            <td><span class="sec">${STOP_NAMES[v.sec] || esc(v.sec)}</span></td>
+            <td class="mono">${esc(v.ref || 'direct')}</td>
+            <td class="mono">${fmtDur(Date.now() - v.first)}</td>
+          </tr>`).join('');
+      } catch {
+        document.getElementById('deckErr').textContent = 'Cannot reach the presence API — retrying…';
+      }
+    }
+    function open() {
+      gate.classList.add('hidden');
+      deck.classList.remove('hidden');
+      poll();
+      timer = setInterval(poll, 5000);
+    }
+    function signout(msg) {
+      clearInterval(timer);
+      try { localStorage.removeItem('dwKey'); } catch {}
+      key = null;
+      deck.classList.add('hidden');
+      gate.classList.remove('hidden');
+      document.getElementById('keyErr').textContent = msg || '';
+    }
+    document.getElementById('keyGo').addEventListener('click', () => {
+      key = document.getElementById('keyInput').value.trim();
+      if (!key) return;
+      try { localStorage.setItem('dwKey', key); } catch {}
+      open();
+    });
+    document.getElementById('keyInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') document.getElementById('keyGo').click();
+    });
+    document.getElementById('signout').addEventListener('click', () => signout());
+
+    if (key) open(); else gate.classList.remove('hidden');
+  </script>
+</body>
+</html>

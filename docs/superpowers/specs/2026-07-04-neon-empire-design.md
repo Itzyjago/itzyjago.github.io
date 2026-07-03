@@ -33,12 +33,11 @@ A stylized neon-Tokyo district at night rendered in Three.js, using the existing
 - **`js/empire/`** — ES modules: `main.js` (bootstrap, fallback check), `world.js` (scene, lights, fog, ground grid, skyline), `landmarks.js` (torii, pagoda, project buildings, construction frame, beacon), `signage.js` (canvas-texture neon signs), `camera-path.js` (Catmull-Rom spline + scroll sync), `lanterns.js` (visitor lanterns), `presence.js` (WS client), `overlay.js` (panel show/hide by scroll progress).
 - All geometry procedural (boxes, cylinders, planes, emissive materials, canvas textures). No downloaded models. Target < 600 KB JS total, 60 fps on mid hardware, pixel ratio capped at 2, bloom-free (emissive + fog instead of postprocessing) to stay light.
 
-### Presence backend (new repo `neon-presence`, deployed on Coolify)
-- Node 20 + `ws` + `geoip-lite`. Single process, in-memory state (a restart just resets counts — acceptable).
-- `wss://presence.aethos.to/ws` — visitors connect, send `{type:'hello', section, referrer}` then `{type:'section', section}` updates; server broadcasts `{type:'count', n}` to all visitors.
-- Dashboard connects with `?role=dashboard&key=<DASHBOARD_KEY>`; receives full roster snapshots `{type:'roster', visitors:[{id, section, country, device, referrer, connectedAt}]}` on every change. Wrong key → socket closed.
-- Country from `geoip-lite` on the client IP (behind Traefik: `x-forwarded-for`). Device parsed from User-Agent (coarse: mobile/desktop + browser).
-- `GET /healthz` for Coolify healthcheck. Dockerfile. CORS irrelevant (WebSocket), but `Origin` checked against an allowlist (`https://itzyjago.github.io`, localhost) — fail closed.
+### Presence — serverless, GitHub-only (revised 2026-07-04 per user: no Coolify, code lives only in the portfolio repo)
+- No backend at all. Realtime presence rides a **public MQTT-over-WebSocket broker** (primary `wss://broker.emqx.io:8084/mqtt`, fallback `wss://broker.hivemq.com:8884/mqtt`), vendored `mqtt.min.js`.
+- Topic namespace `itzyjago/neon-empire/v1/`: each visitor gets a random session id and publishes `hb/<id>` heartbeats (every 10 s + on section change) with `{t, sec, dev, bro, ref, cc}` — timestamp, current section, device class, browser, referrer *hostname only*, ISO country code (from a free client-side IP API, `api.country.is` → `ipwho.is` fallback; omitted if both fail). `bye/<id>` on unload.
+- Every open tab subscribes to `hb/+` and `bye/+`; live count = unique ids heartbeating within the last 30 s. Badge and lanterns update from this.
+- `dashboard.html` subscribes to the same feed and renders the roster (flag/country, device+browser, current district stop, referrer host, time on site). It is unlinked + `noindex` — obscurity, not auth. Known trade-offs, accepted: public broker means the coarse anonymous feed is technically readable by anyone, no true dashboard auth, and free-broker availability is best-effort (everything no-ops gracefully when unreachable). Upgrade path if ever wanted: a tiny self-hosted WS server swaps in behind `presence.js` without touching the rest.
 
 ## 3. Fallbacks & accessibility
 - Lite mode as above; skip-to-content link; overlay panels are semantic HTML identical in content to the current site.
