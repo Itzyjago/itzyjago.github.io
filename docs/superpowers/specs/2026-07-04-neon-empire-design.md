@@ -34,6 +34,11 @@ A stylized neon-Tokyo district at night rendered in Three.js, using the existing
 - All geometry procedural (boxes, cylinders, planes, emissive materials, canvas textures). No downloaded models. Target < 600 KB JS total, 60 fps on mid hardware, pixel ratio capped at 2, bloom-free (emissive + fog instead of postprocessing) to stay light.
 
 ### Presence — serverless, GitHub-only (revised 2026-07-04 per user: no Coolify, code lives only in the portfolio repo)
+
+> **SUPERSEDED (2026-07-04, same day):** the user connected the repo to Netlify, so the shipped
+> implementation is a **Netlify Function + Netlify Blobs** at `/api/presence` (POST heartbeats,
+> GET count, keyed GET roster gated by the `PRESENCE_DASHBOARD_KEY` env var, geo from Netlify's
+> edge context). The MQTT design below was never shipped; kept for the record.
 - No backend at all. Realtime presence rides a **public MQTT-over-WebSocket broker** (primary `wss://broker.emqx.io:8084/mqtt`, fallback `wss://broker.hivemq.com:8884/mqtt`), vendored `mqtt.min.js`.
 - Topic namespace `itzyjago/neon-empire/v1/`: each visitor gets a random session id and publishes `hb/<id>` heartbeats (every 10 s + on section change) with `{t, sec, dev, bro, ref, cc}` — timestamp, current section, device class, browser, referrer *hostname only*, ISO country code (from a free client-side IP API, `api.country.is` → `ipwho.is` fallback; omitted if both fail). `bye/<id>` on unload.
 - Every open tab subscribes to `hb/+` and `bye/+`; live count = unique ids heartbeating within the last 30 s. Badge and lanterns update from this.

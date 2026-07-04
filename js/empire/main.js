@@ -8,6 +8,18 @@ import { createOverlay } from './overlay.js';
 import { updateFlicker } from './signage.js';
 import * as presence from './presence.js';
 
+/* Sign textures are rasterized to canvas at build time — wait (briefly) for
+   the display fonts so the neon signs don't bake in a fallback face. */
+try {
+  await Promise.race([
+    Promise.all([
+      document.fonts.load("700 92px 'Space Grotesk'"),
+      document.fonts.load("500 36px 'JetBrains Mono'"),
+    ]),
+    new Promise((r) => setTimeout(r, 2500)),
+  ]);
+} catch { /* cosmetic only */ }
+
 const canvas = document.getElementById('city');
 let world;
 try {
@@ -40,16 +52,29 @@ const clock = new THREE.Clock();
 let slowFrames = 0;
 let degraded = false;
 let running = true;
+let rafId = 0;
+let rafPending = false;
 
+/* rAF callbacks are paused, not cancelled, in hidden tabs — cancel explicitly
+   or every hide/show cycle would stack another permanent render loop. */
 document.addEventListener('visibilitychange', () => {
-  running = !document.hidden;
-  if (running) { clock.getDelta(); loop(); }
+  if (document.hidden) {
+    running = false;
+    cancelAnimationFrame(rafId);
+    rafPending = false;
+  } else if (!running) {
+    running = true;
+    clock.getDelta();
+    if (!rafPending) loop();
+  }
 });
 
 let firstFrame = true;
 function loop() {
+  rafPending = false;
   if (!running) return;
-  requestAnimationFrame(loop);
+  rafId = requestAnimationFrame(loop);
+  rafPending = true;
   const dt = Math.min(0.05, clock.getDelta());
   const t = clock.elapsedTime;
 

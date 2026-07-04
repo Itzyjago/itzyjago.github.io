@@ -92,13 +92,15 @@ export class CameraRig {
 
     let travelK = 0; /* 0 at rest, peaks mid-flight */
     let bank = 0;
+    const idleX = (i) => Math.sin(t * 0.33 + i) * 0.06;
+    const idleY = (i) => Math.sin(t * 0.5 + i * 2.1) * 0.09;
     if (seg.type === 'dwell') {
       const i = seg.i;
       this._pos.copy(this.curve.getPoint(this.stopU[i]));
       this._look.copy(this.looks[i]);
       /* idle drift */
-      this._pos.y += Math.sin(t * 0.5 + i * 2.1) * 0.09;
-      this._pos.x += Math.sin(t * 0.33 + i) * 0.06;
+      this._pos.x += idleX(i);
+      this._pos.y += idleY(i);
     } else {
       const i = seg.i;
       const k = smoothstep((p - seg.p0) / (seg.p1 - seg.p0));
@@ -106,6 +108,11 @@ export class CameraRig {
       this._pos.copy(this.curve.getPoint(u));
       this._look.lerpVectors(this.looks[i], this.looks[i + 1], k);
       travelK = Math.sin(k * Math.PI);
+      /* keep the idle drift continuous across dwell↔travel edges: blend the
+         two stops' drift phases and fade it out only mid-flight */
+      const fade = 1 - travelK;
+      this._pos.x += (idleX(i) + (idleX(i + 1) - idleX(i)) * k) * fade;
+      this._pos.y += (idleY(i) + (idleY(i + 1) - idleY(i)) * k) * fade;
       /* bank into lateral motion */
       const ahead = this.curve.getPoint(Math.min(1, u + 0.008));
       bank = THREE.MathUtils.clamp((ahead.x - this._pos.x) * -0.55, -0.055, 0.055) * travelK;

@@ -19,6 +19,7 @@ export function createOverlay(rig) {
   }
   function scrollToStop(i, smooth = true) {
     scrollTo({ top: rig.progressForStop(i) * scrollRange(), behavior: smooth ? 'smooth' : 'auto' });
+    history.replaceState(null, '', '#' + STOP_META[i].id);
   }
 
   /* ---- district map HUD ---- */
@@ -49,9 +50,11 @@ export function createOverlay(rig) {
   const hashIdx = STOP_META.findIndex((m) => m.id === hash || (hash === 'work' && m.id === 'projects'));
   if (hashIdx > 0) setTimeout(() => scrollToStop(hashIdx, false), 60);
 
-  /* ---- lite mode ---- */
-  document.getElementById('liteLink')?.addEventListener('click', () => {
-    try { localStorage.setItem('preferLite', '1'); } catch { /* ok */ }
+  /* ---- lite mode: every road out persists the preference ---- */
+  document.querySelectorAll('a[href^="lite.html"]').forEach((a) => {
+    a.addEventListener('click', () => {
+      try { localStorage.setItem('preferLite', '1'); } catch { /* ok */ }
+    });
   });
 
   /* ---- mobile nav toggle ---- */
@@ -116,13 +119,16 @@ export function createOverlay(rig) {
 
   /* ---- per-frame sync ---- */
   const scrollHint = document.getElementById('scrollHint');
+  let lastP = 0;
   function sync() {
     const p = progress();
+    lastP = p;
     rig.setProgress(p);
 
     const stop = rig.stopIndexAt(rig.p);
     if (stop !== currentStop) {
       currentStop = stop;
+      pendingStop = stop;
       const meta = STOP_META[stop];
       dmapButtons.forEach((b, i) => b.classList.toggle('active', i === stop));
       if (blockReadout) {
@@ -145,11 +151,28 @@ export function createOverlay(rig) {
     });
   }
 
+  /* scrollY is preserved in absolute px across resize/rotation while the
+     range rescales — restore the same progress so the user stays on their stop */
+  addEventListener('resize', () => {
+    scrollTo({ top: lastP * scrollRange(), behavior: 'auto' });
+  });
+
   /* keyboard: arrows jump between stops */
+  let pendingStop = 0;
   addEventListener('keydown', (e) => {
-    if (e.target.matches('input, textarea, select')) return;
-    if (e.key === 'ArrowDown' || e.key === 'PageDown') { e.preventDefault(); scrollToStop(Math.min(5, currentStop + 1)); }
-    if (e.key === 'ArrowUp' || e.key === 'PageUp') { e.preventDefault(); scrollToStop(Math.max(0, currentStop - 1)); }
+    const down = e.key === 'ArrowDown' || e.key === 'PageDown';
+    const up = e.key === 'ArrowUp' || e.key === 'PageUp';
+    if (!down && !up) return;
+    const t = e.target;
+    if (t instanceof Element) {
+      if (t.matches('input, textarea, select')) return;
+      /* a panel with overflowing content gets the keys for its own scrolling */
+      const sc = t.closest('.panel');
+      if (sc && sc.scrollHeight > sc.clientHeight + 1) return;
+    }
+    e.preventDefault();
+    pendingStop = Math.min(STOP_META.length - 1, Math.max(0, pendingStop + (down ? 1 : -1)));
+    scrollToStop(pendingStop);
   });
 
   document.getElementById('year')?.append(String(new Date().getFullYear()));

@@ -85,10 +85,10 @@
     </div>
   </div>
 
-  <script>
-    const API = location.hostname.endsWith('.netlify.app') || ['localhost', '127.0.0.1'].includes(location.hostname)
-      ? '/api/presence'
-      : (window.NETLIFY_SITE_OVERRIDE || '') + '/api/presence';
+  <script type="module">
+    /* Single source of truth for the presence endpoint — resolves same-origin
+       on Netlify/localhost, else the NETLIFY_SITE constant in config.js. */
+    import { PRESENCE_API as API } from './js/empire/config.js';
 
     const STOP_NAMES = {
       hero: '01 · ARRIVAL', services: '02 · SERVICES', about: '03 · HQ',
@@ -99,7 +99,8 @@
     let key = null;
     try { key = localStorage.getItem('dwKey'); } catch {}
     if (location.hash.startsWith('#key=')) {
-      key = decodeURIComponent(location.hash.slice(5));
+      const raw = location.hash.slice(5);
+      try { key = decodeURIComponent(raw); } catch { key = raw; }
       try { localStorage.setItem('dwKey', key); } catch {}
       history.replaceState(null, '', location.pathname);
     }
@@ -109,6 +110,7 @@
       return String.fromCodePoint(...[...cc.toUpperCase()].map(c => 0x1F1A5 + c.charCodeAt(0)));
     }
     function fmtDur(ms) {
+      if (!Number.isFinite(ms)) return '—';
       const s = Math.max(0, Math.floor(ms / 1000));
       return `${Math.floor(s / 60)}m ${String(s % 60).padStart(2, '0')}s`;
     }
@@ -116,8 +118,14 @@
 
     let timer = null;
     async function poll() {
+      if (!API) {
+        document.getElementById('deckErr').textContent =
+          'Presence API base is not configured for this origin — set NETLIFY_SITE in js/empire/config.js.';
+        return;
+      }
       try {
-        const res = await fetch(`${API}?key=${encodeURIComponent(key)}`, { cache: 'no-store' });
+        /* key travels as a header, not a query param, to keep it out of URL logs */
+        const res = await fetch(API, { cache: 'no-store', headers: { 'x-dashboard-key': key } });
         if (res.status === 403) { signout('Wrong key.'); return; }
         if (!res.ok) throw new Error(res.status);
         const data = await res.json();
@@ -129,7 +137,7 @@
           <tr>
             <td>${flag(v.cc)} <span class="mono">${esc(v.dev)} · ${esc(v.bro)}</span></td>
             <td>${esc([v.city, v.country].filter(Boolean).join(', ') || 'Unknown')}</td>
-            <td><span class="sec">${STOP_NAMES[v.sec] || esc(v.sec)}</span></td>
+            <td><span class="sec">${Object.hasOwn(STOP_NAMES, v.sec) ? STOP_NAMES[v.sec] : esc(v.sec)}</span></td>
             <td class="mono">${esc(v.ref || 'direct')}</td>
             <td class="mono">${fmtDur(Date.now() - v.first)}</td>
           </tr>`).join('');

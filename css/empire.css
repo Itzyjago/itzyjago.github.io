@@ -84,6 +84,7 @@ a { color: var(--teal); }
   font-family: var(--font-mono); font-size: 11px; letter-spacing: .35em;
   color: var(--dim); animation: pulse 1.6s ease-in-out infinite;
 }
+.loader__label a { color: var(--teal); }
 @keyframes pulse { 50% { opacity: .35; } }
 
 /* ============ nav ============ */
@@ -173,6 +174,7 @@ a { color: var(--teal); }
   font-family: var(--font-mono); font-size: 10px; letter-spacing: .3em;
   color: var(--dim); animation: hintFloat 2.4s ease-in-out infinite;
   transition: opacity .5s; text-transform: uppercase;
+  pointer-events: none; /* decorative — must never swallow taps when faded out */
 }
 .scroll-hint.hidden { opacity: 0; }
 @keyframes hintFloat { 50% { transform: translate(-50%, 7px); } }
@@ -182,7 +184,8 @@ a { color: var(--teal); }
   position: fixed; z-index: 30;
   top: 50%; right: 5vw; transform: translateY(calc(-50% + 22px)) scale(.985);
   width: min(560px, 88vw);
-  max-height: 76vh; overflow-y: auto; overscroll-behavior: contain;
+  max-height: 76vh; overflow-y: auto; /* scroll chains to the page at the ends,
+    so a fully-read panel never becomes a dead zone for the city flight */
   border: 1px solid transparent;
   background:
     linear-gradient(var(--ink), var(--ink)) padding-box,
@@ -426,13 +429,13 @@ a { color: var(--teal); }
     padding: 24px 20px 20px;
   }
   .panel.visible { transform: none; }
-  .panel--hero { left: 0; padding: 0 20px; bottom: 12vh; background: none; }
+  .panel--hero { left: 0; padding: 0 20px; bottom: 12vh; background: none; overflow-y: auto; max-height: calc(88vh - 82px); }
   .panel--projects { width: 100%; }
   .proj__grid, .svc, .skills__grid { grid-template-columns: 1fr; }
   .stats { grid-template-columns: repeat(2, 1fr); }
   .dmap .dmap__n { display: none; }
-  .dmap { left: 12px; bottom: 18px; }
-  .hud-right { right: 12px; bottom: 18px; }
+  .dmap { left: 12px; bottom: 18px; z-index: 20; } /* under the bottom-sheet panels */
+  .hud-right { right: 12px; top: 66px; bottom: auto; } /* badge above panels, below nav */
   #blockReadout { display: none; }
   .panel__tab { display: none; }
   .panel__body { margin-left: 0; }

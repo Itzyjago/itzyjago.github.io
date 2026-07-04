@@ -1,10 +1,9 @@
 /* Central config for The Neon Empire. */
 
 /* Netlify site that hosts the presence function. When the page itself is
-   served by Netlify (or `netlify dev`), same-origin is used automatically.
-   Leave NETLIFY_SITE empty to disable presence on other origins until the
-   deployed Netlify URL is known. */
-export const NETLIFY_SITE = '';
+   served by Netlify (or `netlify dev`), same-origin is used automatically;
+   on itzyjago.github.io the heartbeats go cross-origin to this site. */
+export const NETLIFY_SITE = 'https://carloditalo.netlify.app';
 
 export const PRESENCE_API = (() => {
   const h = location.hostname;

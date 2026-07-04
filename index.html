@@ -21,16 +21,27 @@
   <!-- 3D capability gate: fall back to the lite site before loading anything heavy -->
   <script>
     (function () {
+      function toLite() { location.replace('lite.html' + location.hash); }
       try {
+        var pref = null;
+        try { pref = localStorage.getItem('preferLite'); } catch (e) { /* storage blocked ≠ no WebGL */ }
         var q = new URLSearchParams(location.search);
-        if (q.has('force3d')) { localStorage.removeItem('preferLite'); }
+        if (q.has('force3d')) { try { localStorage.removeItem('preferLite'); } catch (e) {} }
         else {
-          if (q.has('lite') || localStorage.getItem('preferLite') === '1') { location.replace('lite.html'); return; }
-          if (matchMedia('(prefers-reduced-motion: reduce)').matches) { location.replace('lite.html'); return; }
+          if (q.has('lite') || pref === '1') { toLite(); return; }
+          if (matchMedia('(prefers-reduced-motion: reduce)').matches) { toLite(); return; }
         }
+        /* main.js is an ES module resolved via import map — no importmap support
+           means the loader would hang forever on a black screen */
+        if (!(window.HTMLScriptElement && HTMLScriptElement.supports && HTMLScriptElement.supports('importmap'))) { toLite(); return; }
         var c = document.createElement('canvas');
-        if (!(c.getContext('webgl2') || c.getContext('webgl'))) { location.replace('lite.html'); }
-      } catch (e) { location.replace('lite.html'); }
+        if (!(c.getContext('webgl2') || c.getContext('webgl'))) { toLite(); }
+      } catch (e) { toLite(); }
+      /* any road out to the lite site should stick for next visit */
+      addEventListener('click', function (e) {
+        var a = e.target && e.target.closest && e.target.closest('a[href^="lite.html"]');
+        if (a) { try { localStorage.setItem('preferLite', '1'); } catch (err) {} }
+      }, true);
     })();
   </script>
 
@@ -53,6 +64,16 @@
       <div class="loader__label">ENTERING THE DISTRICT…</div>
     </div>
   </div>
+  <script>
+    /* watchdog: if the city never renders (slow net, module failure), offer a way out */
+    setTimeout(function () {
+      var l = document.getElementById('loader');
+      if (l && !l.classList.contains('done')) {
+        var lbl = l.querySelector('.loader__label');
+        if (lbl) lbl.innerHTML = 'Taking a while… <a href="lite.html">enter the lite site instead →</a>';
+      }
+    }, 9000);
+  </script>
 
   <!-- the city -->
   <canvas id="city" aria-hidden="true"></canvas>

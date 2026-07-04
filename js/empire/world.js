@@ -59,6 +59,7 @@ export function createWorld(canvas) {
   [[-70, 26, -120, PALETTE.teal, 90], [60, 22, -110, PALETTE.purple, 110], [0, 18, 130, PALETTE.purple, 100]]
     .forEach(([x, y, z, color, size]) => {
       const g = makeGlow(new THREE.Color(color), size, 0.09);
+      g.material.fog = false; /* 100+ units out, FogExp2 would erase it entirely */
       g.position.set(x, y, z);
       scene.add(g);
     });
