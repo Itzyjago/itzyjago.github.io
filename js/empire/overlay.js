@@ -60,10 +60,10 @@ export function createOverlay({ onFastTravel } = {}) {
     if (blockReadout) {
       blockReadout.textContent = meta ? `BLK ${meta.num} · ${meta.en}` : 'OPEN ROAD';
     }
-    if (meta) {
-      history.replaceState(null, '',
-        meta.id === 'hero' ? location.pathname + location.search : '#' + meta.id);
-    }
+    /* keep the URL honest even on the open road — otherwise a reload while
+       driving between districts snaps back into the last one visited */
+    history.replaceState(null, '',
+      meta && meta.id !== 'hero' ? '#' + meta.id : location.pathname + location.search);
     if (onDistrictChange) onDistrictChange(id);
   }
 

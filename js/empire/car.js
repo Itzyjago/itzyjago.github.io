@@ -11,7 +11,7 @@ const VMAX = 17;
 const VMAX_BOOST = 34;    /* autopilot / fast travel */
 const VREV = 6.5;
 const STEER = 2.3;        /* rad/s at reference speed */
-const CAR_R = 1.4;        /* collision radius */
+export const CAR_R = 1.4; /* collision radius */
 const BOUNDS = { x: 66, zMin: -96, zMax: 96 };
 
 function buildCarMesh() {
@@ -148,7 +148,13 @@ export class Car {
     if (throttle > 0) this.v += (this.boost ? ACCEL * 2.2 : ACCEL) * throttle * dt;
     else if (throttle < 0) this.v += (this.v > 0 ? BRAKE : ACCEL * 0.7) * throttle * dt;
     this.v *= Math.max(0, 1 - DRAG * dt);
-    this.v = Math.min(vmax, Math.max(-VREV, this.v));
+    if (this.v > vmax) {
+      /* boost ending mid-drive shrinks vmax under the current speed — ease
+         down at the brake rate instead of an instant one-frame clamp */
+      this.v = Math.max(vmax, this.v - BRAKE * dt);
+    } else {
+      this.v = Math.max(-VREV, this.v);
+    }
     if (Math.abs(this.v) < 0.02 && throttle === 0) this.v = 0;
     if (Math.abs(this.v) > 0.4) this.moved = true;
 

@@ -1,6 +1,7 @@
 /* Driving input: WASD/arrows, tap/click-to-drive, and nav fast travel. */
 import * as THREE from 'three';
 import { PALETTE } from './config.js';
+import { CAR_R } from './car.js';
 
 const GROUND = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
 const ARRIVE_R = 1.9;      /* close enough — stop */
@@ -16,7 +17,13 @@ export function createControls(car, camera, canvas, scene) {
     if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) {
       const t = e.target;
       if (t instanceof Element && t.matches('input, textarea, select')) return;
-      if (k.startsWith('arrow')) e.preventDefault();
+      if (k.startsWith('arrow')) {
+        /* a visitor reading an open, scrollable panel is scrolling, not
+           driving — let the browser's native scroll have the arrow keys */
+        const sc = t instanceof Element && t.closest('.panel.visible');
+        if (sc && sc.scrollHeight > sc.clientHeight + 1) return;
+        e.preventDefault();
+      }
       keys.add(k);
       clearTarget(); /* grabbing the wheel cancels autopilot */
     }
@@ -59,11 +66,27 @@ export function createControls(car, camera, canvas, scene) {
   });
 
   function setTarget(x, z, fast) {
+    /* a tap on a building's face raycasts the ground BEHIND it — if that
+       lands inside a collider's footprint the car could never close within
+       ARRIVE_R (physically blocked), so pull the target out to the collider's
+       edge instead of leaving an unreachable destination */
+    for (const c of car.colliders) {
+      const dx = x - c.x;
+      const dz = z - c.z;
+      const need = c.r + CAR_R + ARRIVE_R;
+      const d = Math.hypot(dx, dz);
+      if (d < need) {
+        const k = d > 1e-4 ? need / d : 1;
+        x = c.x + (d > 1e-4 ? dx * k : need);
+        z = c.z + (d > 1e-4 ? dz * k : 0);
+      }
+    }
     target = new THREE.Vector3(x, 0, z);
     boost = !!fast;
     marker.position.set(x, 0.05, z);
     marker.visible = true;
     car.moved = true;
+    recoverLeft = 0; /* a fresh destination shouldn't inherit a stale back-out window */
   }
   function clearTarget() {
     target = null;
@@ -71,6 +94,7 @@ export function createControls(car, camera, canvas, scene) {
     car.boost = false;
     marker.visible = false;
     reversing = false;
+    recoverLeft = 0;
   }
 
   /** nav fast travel: the car drives itself there, quickly */
@@ -99,7 +123,8 @@ export function createControls(car, camera, canvas, scene) {
   }
 
   let stuckFor = 0;
-  let recoverUntil = 0;
+  let recoverLeft = 0; /* physics-time (dt) countdown, not wall-clock — stays
+    a full 1s of simulated back-out even on a device rendering slower than 1fps */
   let recoverSteer = 1;
   let reversing = false; /* committed to a reverse-turn until the nose comes around */
 
@@ -122,10 +147,11 @@ export function createControls(car, camera, canvas, scene) {
       const dist = Math.hypot(dx, dz);
       if (dist < ARRIVE_R) {
         clearTarget();
-      } else if (t < recoverUntil) {
+      } else if (recoverLeft > 0) {
         /* wedged against something: back out on an arc, then retry */
         throttle = -0.75;
         steer = recoverSteer;
+        recoverLeft -= dt;
       } else {
         const desired = Math.atan2(dx, dz);
         let diff = desired - car.heading;
@@ -160,7 +186,7 @@ export function createControls(car, camera, canvas, scene) {
           if (dist < 7) {
             clearTarget(); /* close enough — the wall is the destination's porch */
           } else {
-            recoverUntil = t + 1.0;
+            recoverLeft = 1.0;
             recoverSteer = steer >= 0 ? -1 : 1;
           }
           stuckFor = 0;

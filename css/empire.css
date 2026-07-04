@@ -254,9 +254,13 @@ a { color: var(--teal); }
   right: auto; left: 6vw; width: min(640px, 90vw);
   background: none; border: none; backdrop-filter: none; padding: 0;
   max-height: none; overflow: visible; box-shadow: none;
+  /* transparent but still a box over the street — let taps/clicks fall
+     through to the canvas (tap-to-drive), then re-enable on real controls */
+  pointer-events: none;
 }
 .panel--hero::before, .panel--hero::after { display: none; }
 .panel--hero .panel__body { margin-left: 0; }
+.panel--hero a, .panel--hero button { pointer-events: auto; }
 .hero__scrim {
   position: absolute; inset: -60px -80px; z-index: -1; border-radius: 40px;
   background: radial-gradient(ellipse at 30% 50%, rgba(7,8,13,.82), rgba(7,8,13,.25) 60%, transparent 75%);

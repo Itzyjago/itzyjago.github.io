@@ -1,8 +1,10 @@
 # Carlo Ditalo — The Neon Empire
 
-A personal portfolio as a scroll-driven **3D neon city** (Three.js): every building is a shipped
-project, the skills are a construction site, and live visitors drift through the streets as warm
-paper lanterns. No build step — plain HTML/CSS/JS with Three.js vendored as an ES module.
+A personal portfolio as a **drivable 3D neon city** (Three.js): you spawn in a car at the torii
+gate and drive the land — every building is a shipped project, the skills are a construction site,
+and live visitors drift through the streets as warm paper lanterns. Drive with WASD/arrows or
+tap/click the street; nav links auto-drive you there. No build step — plain HTML/CSS/JS with
+Three.js vendored as an ES module.
 
 Live at **https://itzyjago.github.io** (GitHub Pages) with a Netlify twin hosting the presence API.
 
@@ -14,7 +16,8 @@ carlo-portfolio/
 ├── lite.html                     # classic 2D site — fallback + user preference
 ├── dashboard.html                # "District Watch": private live-visitor dashboard
 ├── css/empire.css                # 3D overlay UI     css/styles.css → lite site
-├── js/empire/                    # world, landmarks, camera rig, overlay, presence client
+├── js/empire/                    # world, landmarks, car, drive controls, chase cam,
+│                                 #   districts, overlay, presence client
 │   └── config.js                 # ← NETLIFY_SITE + presence endpoint config
 ├── js/vendor/three.module.min.js # Three.js r166, vendored (importmap)
 ├── js/main.js                    # lite-site JS
@@ -61,6 +64,6 @@ presence function from the same repo.
 ## Customize
 
 - **Palette:** `PALETTE` in `js/empire/config.js` (+ CSS tokens at the top of `css/empire.css`).
-- **Stops/districts:** `STOP_META` in config.js and `STOPS` in `js/empire/landmarks.js`.
+- **Districts:** `STOP_META` in config.js and `DISTRICTS` in `js/empire/districts.js`.
 - **Content:** panels live in `index.html`; the lite site mirrors them in `lite.html`.
 - **Resume:** replace `assets/Carlo-Ditalo-Resume.pdf`.
