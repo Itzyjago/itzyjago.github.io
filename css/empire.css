@@ -17,11 +17,13 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: auto; }
+html, body { height: 100%; }
 body {
   background: var(--void);
   color: var(--paper);
   font-family: var(--font-body);
-  overflow-x: hidden;
+  overflow: hidden; /* drive mode: the world moves, the page doesn't */
+  overscroll-behavior: none;
 }
 ::selection { background: rgba(54, 241, 205, 0.25); }
 
@@ -32,6 +34,8 @@ canvas#city {
   height: 100%;
   display: block;
   z-index: 0;
+  touch-action: none; /* taps steer the car — never pan/zoom the page */
+  cursor: crosshair;
 }
 
 /* cinematic veil: vignette + film grain over the city, under the UI */
@@ -52,8 +56,6 @@ canvas#city {
   background: linear-gradient(rgba(54,241,205,.5), rgba(124,92,255,.5));
   border-radius: 9px; border: 2px solid #05060a;
 }
-
-#scrollSpacer { height: 900vh; pointer-events: none; }
 
 a { color: var(--teal); }
 :focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; border-radius: 4px; }
@@ -197,7 +199,11 @@ a { color: var(--teal); }
   box-shadow: 0 24px 70px rgba(0, 0, 0, .5), 0 0 50px rgba(54, 241, 205, .05);
   visibility: hidden; opacity: 0;
   filter: blur(6px);
-  transition: transform .55s cubic-bezier(.2, .75, .25, 1), filter .55s ease;
+  transition:
+    transform .55s cubic-bezier(.2, .75, .25, 1),
+    filter .55s ease,
+    opacity .5s ease,
+    visibility 0s linear .5s;
   scrollbar-width: thin; scrollbar-color: rgba(54,241,205,.3) transparent;
 }
 .panel::before {  /* scanlines */
@@ -215,8 +221,14 @@ a { color: var(--teal); }
 }
 .panel.visible {
   visibility: visible;
+  opacity: 1;
   transform: translateY(-50%) scale(1);
   filter: blur(0);
+  transition:
+    transform .55s cubic-bezier(.2, .75, .25, 1),
+    filter .55s ease,
+    opacity .5s ease,
+    visibility 0s;
 }
 .panel__tab {   /* vertical JP marker — the typographic signature */
   position: absolute; top: 34px; left: 12px;
@@ -433,6 +445,7 @@ a { color: var(--teal); }
   .panel--projects { width: 100%; }
   .proj__grid, .svc, .skills__grid { grid-template-columns: 1fr; }
   .stats { grid-template-columns: repeat(2, 1fr); }
+  .scroll-hint { bottom: auto; top: 104px; } /* clear of the bottom-sheet panels */
   .dmap .dmap__n { display: none; }
   .dmap { left: 12px; bottom: 18px; z-index: 20; } /* under the bottom-sheet panels */
   .hud-right { right: 12px; top: 66px; bottom: auto; } /* badge above panels, below nav */

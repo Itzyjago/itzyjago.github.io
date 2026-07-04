@@ -328,24 +328,70 @@ function buildBeaconTower(updaters) {
   return g;
 }
 
-/* ---------- camera stops ---------- */
-export const STOPS = [
-  { id: 'hero',     cam: [0, 3.0, 84],   look: [0, 6.5, 40] },
-  { id: 'services', cam: [0, 2.9, 42],   look: [0, 3.4, 22] },
-  { id: 'about',    cam: [1.5, 3.6, 14], look: [-13, 7.5, 2] },
-  { id: 'projects', cam: [0.5, 5.2, -4], look: [-3, 11, -30] },
-  { id: 'skills',   cam: [2, 6, -49],    look: [14, 9.5, -62] },
-  { id: 'contact',  cam: [0, 34, -64],   look: [2, 31.5, -84] },
-];
+/* ---------- contact plaza: ground-level landing in front of the beacon tower ---------- */
+function buildContactPlaza(updaters) {
+  const g = new THREE.Group();
 
-/* mid-waypoints between stops keep the flight on the street */
-export const WAYPOINTS = [
-  [0, 3.2, 61],    /* through the torii */
-  [0.8, 3.1, 26],
-  [1.2, 4.2, 6],
-  [1.4, 5.4, -30],
-  [3.5, 18, -54],  /* the ascent */
-];
+  /* neon ring set into the pavement */
+  const ring = new THREE.Mesh(
+    new THREE.RingGeometry(6.1, 6.5, 64),
+    new THREE.MeshBasicMaterial({
+      color: PALETTE.teal, transparent: true, opacity: 0.4,
+      blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, fog: true,
+    })
+  );
+  ring.rotation.x = -Math.PI / 2;
+  ring.position.set(0, 0.04, -74);
+  g.add(ring);
+  updaters.push((t) => { ring.material.opacity = 0.28 + 0.18 * (0.5 + 0.5 * Math.sin(t * 1.6)); });
+
+  /* street-level invitation on two posts, facing the arriving car */
+  const postMat = new THREE.MeshBasicMaterial({ color: 0x1a2030, fog: true });
+  for (const x of [-3.1, 3.1]) {
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 3.6, 8), postMat);
+    post.position.set(x, 1.8, -79);
+    g.add(post);
+  }
+  const sign = makeSign("LET'S BUILD", { color: TEAL, sub: 'YOU MADE IT · GET IN TOUCH', height: 1.15 });
+  sign.position.set(0, 3.1, -78.9);
+  registerFlicker(sign.material);
+  g.add(sign);
+
+  /* two warm lanterns flanking the plaza */
+  for (const x of [-5.6, 5.6]) {
+    const lamp = makeGlow(new THREE.Color(PALETTE.ember), 2, 0.5);
+    lamp.position.set(x, 2.6, -74);
+    g.add(lamp);
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 2.6, 8), postMat);
+    pole.position.set(x, 1.3, -74);
+    g.add(pole);
+  }
+  return g;
+}
+
+/* ---------- directional signposts along the avenue ---------- */
+function buildSignposts() {
+  const g = new THREE.Group();
+  const posts = [
+    { text: 'MARKET ST →',      sub: 'SERVICES',  color: TEAL,      x: 7.4,  z: 47,  ry: 0.25 },
+    { text: '← CARLO HQ',       sub: 'ABOUT',     color: PURPLE,    x: -7.4, z: 14,  ry: -0.25 },
+    { text: 'EMPIRE DISTRICT',  sub: 'PROJECTS',  color: TEAL,      x: 7.4,  z: 8,   ry: 0.25 },
+    { text: 'THE STRUCTURE →',  sub: 'SKILLS',    color: '#ffb347', x: -7.4, z: -44, ry: -0.25 },
+    { text: 'ROOFTOP BEACON',   sub: 'CONTACT',   color: EMBER,     x: 7.4,  z: -64, ry: 0.25 },
+  ];
+  const poleMat = new THREE.MeshBasicMaterial({ color: 0x1a2030, fog: true });
+  for (const p of posts) {
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 3.6, 8), poleMat);
+    pole.position.set(p.x, 1.8, p.z);
+    g.add(pole);
+    const s = makeSign(p.text, { color: p.color, sub: p.sub, height: 0.85 });
+    s.position.set(p.x, 3.35, p.z);
+    s.rotation.y = p.ry;
+    if (Math.random() < 0.4) registerFlicker(s.material);
+    g.add(s);
+  }
+  return g;
+}
 
 export function buildLandmarks() {
   const updaters = [];
@@ -356,7 +402,35 @@ export function buildLandmarks() {
     buildPagoda(),
     buildProjects(updaters),
     buildConstruction(updaters),
-    buildBeaconTower(updaters)
+    buildBeaconTower(updaters),
+    buildContactPlaza(updaters),
+    buildSignposts()
   );
-  return { group, updaters };
+
+  /* car colliders for everything solid at street level */
+  const colliders = [
+    /* torii pillars */
+    { x: -5.2, z: 58, r: 0.9 }, { x: 5.2, z: 58, r: 0.9 },
+    /* market stalls */
+    { x: -5.4, z: 34, r: 1.5 }, { x: 5.4, z: 30, r: 1.5 },
+    { x: -5.4, z: 26, r: 1.5 }, { x: 5.4, z: 22, r: 1.5 },
+    /* pagoda (group at -13,2; widest roof 9.4) */
+    { x: -13, z: 2, r: 5.4 },
+    /* project towers (square footprints, w/√2 + margin) */
+    { x: -11, z: -26, r: 6.8 }, { x: 10.5, z: -33, r: 6.1 },
+    { x: -10.5, z: -40, r: 6.1 }, { x: 9.5, z: -18, r: 5.4 },
+    { x: -9.5, z: -12, r: 4.7 }, { x: 10, z: -46, r: 5.4 },
+    /* construction frame + crane mast (group at 14,-62) */
+    { x: 14, z: -62, r: 7.8 }, { x: 22, z: -69, r: 0.9 },
+    /* beacon tower */
+    { x: 0, z: -86, r: 8.9 },
+    /* contact plaza posts + lanterns */
+    { x: -3.1, z: -79, r: 0.5 }, { x: 3.1, z: -79, r: 0.5 },
+    { x: -5.6, z: -74, r: 0.4 }, { x: 5.6, z: -74, r: 0.4 },
+    /* signposts */
+    { x: 7.4, z: 47, r: 0.4 }, { x: -7.4, z: 14, r: 0.4 }, { x: 7.4, z: 8, r: 0.4 },
+    { x: -7.4, z: -44, r: 0.4 }, { x: 7.4, z: -64, r: 0.4 },
+  ];
+
+  return { group, updaters, colliders };
 }

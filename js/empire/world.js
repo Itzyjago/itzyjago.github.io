@@ -9,6 +9,7 @@ function seededRand(seed) {
 }
 
 export function createWorld(canvas) {
+  const colliders = []; /* {x, z, r} circles the car cannot enter */
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   renderer.setSize(innerWidth, innerHeight);
@@ -98,12 +99,16 @@ export function createWorld(canvas) {
     const x = side * (16 + rnd() * 40);
     const z = -95 + rnd() * 185;
     eu.set(0, rnd() < 0.5 ? 0 : Math.PI / 2, 0);
+    const sx = 4 + rnd() * 5;
+    const sy = 6 + rnd() * 22;
+    const sz = 4 + rnd() * 5;
     m.compose(
       new THREE.Vector3(x, 0, z),
       q.setFromEuler(eu),
-      new THREE.Vector3(4 + rnd() * 5, 6 + rnd() * 22, 4 + rnd() * 5)
+      new THREE.Vector3(sx, sy, sz)
     );
     mid.setMatrixAt(i, m);
+    colliders.push({ x, z, r: Math.hypot(sx, sz) / 2 });
     const pick = rnd();
     tint.set(pick < 0.6 ? 0x9aa8cc : pick < 0.8 ? 0x36f1cd : 0x7c5cff);
     tint.multiplyScalar(0.55 + rnd() * 0.45);
@@ -120,12 +125,17 @@ export function createWorld(canvas) {
     const side = i % 2 ? -1 : 1;
     const z = 10 + (i >> 1) * 6.2 + rnd() * 2;
     eu.set(0, rnd() < 0.5 ? 0 : Math.PI / 2, 0);
+    const cx = side * (11.5 + rnd() * 3.5);
+    const sx = 4.5 + rnd() * 3;
+    const sy = 8 + rnd() * 15;
+    const sz = 4.5 + rnd() * 3;
     m.compose(
-      new THREE.Vector3(side * (11.5 + rnd() * 3.5), 0, z),
+      new THREE.Vector3(cx, 0, z),
       q.setFromEuler(eu),
-      new THREE.Vector3(4.5 + rnd() * 3, 8 + rnd() * 15, 4.5 + rnd() * 3)
+      new THREE.Vector3(sx, sy, sz)
     );
     canyon.setMatrixAt(i, m);
+    colliders.push({ x: cx, z, r: Math.hypot(sx, sz) / 2 });
     const pick = rnd();
     tint.set(pick < 0.55 ? 0x9aa8cc : pick < 0.8 ? 0x36f1cd : 0x7c5cff);
     tint.multiplyScalar(0.5 + rnd() * 0.5);
@@ -238,5 +248,5 @@ export function createWorld(canvas) {
     renderer.setSize(innerWidth, innerHeight);
   }
 
-  return { renderer, scene, camera, update, resize, setQuality };
+  return { renderer, scene, camera, update, resize, setQuality, colliders };
 }

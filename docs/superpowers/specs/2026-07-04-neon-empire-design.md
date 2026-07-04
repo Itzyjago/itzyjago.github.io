@@ -44,6 +44,21 @@ A stylized neon-Tokyo district at night rendered in Three.js, using the existing
 - Every open tab subscribes to `hb/+` and `bye/+`; live count = unique ids heartbeating within the last 30 s. Badge and lanterns update from this.
 - `dashboard.html` subscribes to the same feed and renders the roster (flag/country, device+browser, current district stop, referrer host, time on site). It is unlinked + `noindex` — obscurity, not auth. Known trade-offs, accepted: public broker means the coarse anonymous feed is technically readable by anyone, no true dashboard auth, and free-broker availability is best-effort (everything no-ops gracefully when unreachable). Upgrade path if ever wanted: a tiny self-hosted WS server swaps in behind `presence.js` without touching the rest.
 
+## 2b. Drive Mode (v2 — same day, user-approved redesign)
+The scroll-driven camera tour is replaced by **free driving**: the visitor spawns in a procedural
+low-poly neon car at the torii gate and explores the city as open land. User decisions:
+full free-drive only (no guided tour), **pure exploration** (no mini-map/auto-pilot HUD; neon
+signposts point to districts), **tap-to-drive** on mobile (tap the street → the car drives itself
+there; desktop gets WASD/arrows AND click-to-drive). Portfolio displays via **proximity districts**:
+driving into a district's radius opens its glass panel (hysteresis so it doesn't flicker), driving
+away closes it. Top-nav links remain as fast travel — the car auto-drives there at boost speed.
+Contact gains a ground-level plaza at the beacon tower's base. Implementation: `car.js` (arcade
+physics + circular colliders + world bounds), `drive-controls.js` (keys, raycast tap-to-drive with
+seek/arrive, target marker), `chase-cam.js` (smoothed boom, look-ahead, speed FOV), `districts.js`
+(zones), overlay rewritten to district events; `camera-path.js` deleted; page no longer scrolls.
+Deep links (`#projects`) spawn the car in that district. Lite/dashboard/presence unchanged
+(presence `sec` = current district).
+
 ## 3. Fallbacks & accessibility
 - Lite mode as above; skip-to-content link; overlay panels are semantic HTML identical in content to the current site.
 - `prefers-reduced-motion` → lite. Page hidden (tab switch) → rAF paused, WS stays connected.

@@ -1,54 +1,26 @@
-/* DOM overlay: panels, district-map HUD, nav, live badge, contact form. */
+/* DOM overlay: district panels, nav fast-travel, live badge, contact form. */
 import { STOP_META } from './config.js';
 
 const EMAIL = 'ditalocarloisidro11301@gmail.com';
 
-export function createOverlay(rig) {
-  const panels = STOP_META.map((m) => document.getElementById(`panel-${m.id}`));
-  const dmapButtons = [];
-  let currentStop = -1;
-  let onStopChange = null;
-
-  /* ---- scroll metrics ---- */
-  const spacer = document.getElementById('scrollSpacer');
-  function scrollRange() {
-    return Math.max(1, document.documentElement.scrollHeight - innerHeight);
-  }
-  function progress() {
-    return Math.min(1, Math.max(0, (scrollY || 0) / scrollRange()));
-  }
-  function scrollToStop(i, smooth = true) {
-    scrollTo({ top: rig.progressForStop(i) * scrollRange(), behavior: smooth ? 'smooth' : 'auto' });
-    history.replaceState(null, '', '#' + STOP_META[i].id);
-  }
-
-  /* ---- district map HUD ---- */
-  const dmap = document.getElementById('dmapStops');
-  const dmapFill = document.getElementById('dmapFill');
-  STOP_META.forEach((m, i) => {
-    const b = document.createElement('button');
-    b.className = 'dmap__stop';
-    b.innerHTML = `<span class="dmap__k">${m.num}</span><span class="dmap__n">${m.en}</span>`;
-    b.setAttribute('aria-label', `Go to ${m.en}`);
-    b.addEventListener('click', () => scrollToStop(i));
-    dmap.appendChild(b);
-    dmapButtons.push(b);
-  });
-
+export function createOverlay({ onFastTravel } = {}) {
+  const panels = new Map(STOP_META.map((m) => [m.id, document.getElementById(`panel-${m.id}`)]));
   const blockReadout = document.getElementById('blockReadout');
+  let onDistrictChange = null;
 
-  /* ---- nav links + hash deep links ---- */
+  /* ---- nav links: the car drives you there ---- */
   document.querySelectorAll('[data-stop-link]').forEach((a) => {
     a.addEventListener('click', (e) => {
       e.preventDefault();
-      const i = STOP_META.findIndex((m) => m.id === a.dataset.stopLink);
-      if (i >= 0) scrollToStop(i);
+      if (onFastTravel) onFastTravel(a.dataset.stopLink);
       document.getElementById('navLinks')?.classList.remove('open');
     });
   });
+
+  /* ---- deep link: which district to spawn at ---- */
   const hash = location.hash.replace('#', '');
-  const hashIdx = STOP_META.findIndex((m) => m.id === hash || (hash === 'work' && m.id === 'projects'));
-  if (hashIdx > 0) setTimeout(() => scrollToStop(hashIdx, false), 60);
+  const initialDistrict =
+    STOP_META.find((m) => m.id === hash || (hash === 'work' && m.id === 'projects'))?.id || null;
 
   /* ---- lite mode: every road out persists the preference ---- */
   document.querySelectorAll('a[href^="lite.html"]').forEach((a) => {
@@ -76,6 +48,35 @@ export function createOverlay(rig) {
     } else {
       badge.classList.remove('on');
     }
+  }
+
+  /* ---- district panels ---- */
+  let currentDistrict = undefined; /* undefined = not yet set; null = open road */
+  function showDistrict(id) {
+    if (id === currentDistrict) return;
+    currentDistrict = id;
+    panels.forEach((panel, pid) => panel?.classList.toggle('visible', pid === id));
+    const meta = STOP_META.find((m) => m.id === id);
+    if (blockReadout) {
+      blockReadout.textContent = meta ? `BLK ${meta.num} · ${meta.en}` : 'OPEN ROAD';
+    }
+    if (meta) {
+      history.replaceState(null, '',
+        meta.id === 'hero' ? location.pathname + location.search : '#' + meta.id);
+    }
+    if (onDistrictChange) onDistrictChange(id);
+  }
+
+  /* ---- drive hint ---- */
+  const hint = document.getElementById('driveHint');
+  if (hint && (matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window)) {
+    hint.textContent = 'TAP THE STREET — THE CAR DRIVES YOU THERE';
+  }
+  let hintHidden = false;
+  function hideHint() {
+    if (hintHidden || !hint) return;
+    hintHidden = true;
+    hint.classList.add('hidden');
   }
 
   /* ---- contact form (same behavior as lite site) ---- */
@@ -117,70 +118,14 @@ export function createOverlay(rig) {
     });
   }
 
-  /* ---- per-frame sync ---- */
-  const scrollHint = document.getElementById('scrollHint');
-  let lastP = 0;
-  function sync() {
-    const p = progress();
-    lastP = p;
-    rig.setProgress(p);
-
-    const stop = rig.stopIndexAt(rig.p);
-    if (stop !== currentStop) {
-      currentStop = stop;
-      pendingStop = stop;
-      const meta = STOP_META[stop];
-      dmapButtons.forEach((b, i) => b.classList.toggle('active', i === stop));
-      if (blockReadout) {
-        blockReadout.textContent = `BLK ${meta.num} · ${meta.en}`;
-      }
-      if (onStopChange) onStopChange(meta.id);
-    }
-    if (dmapFill) dmapFill.style.height = `${rig.p * 100}%`;
-    if (scrollHint) scrollHint.classList.toggle('hidden', p > 0.015);
-
-    panels.forEach((panel, i) => {
-      if (!panel) return;
-      const a = rig.dwellAmount(rig.p, i);
-      if (a <= 0.02) {
-        panel.classList.remove('visible');
-      } else {
-        panel.classList.add('visible');
-        panel.style.opacity = a;
-      }
-    });
-  }
-
-  /* scrollY is preserved in absolute px across resize/rotation while the
-     range rescales — restore the same progress so the user stays on their stop */
-  addEventListener('resize', () => {
-    scrollTo({ top: lastP * scrollRange(), behavior: 'auto' });
-  });
-
-  /* keyboard: arrows jump between stops */
-  let pendingStop = 0;
-  addEventListener('keydown', (e) => {
-    const down = e.key === 'ArrowDown' || e.key === 'PageDown';
-    const up = e.key === 'ArrowUp' || e.key === 'PageUp';
-    if (!down && !up) return;
-    const t = e.target;
-    if (t instanceof Element) {
-      if (t.matches('input, textarea, select')) return;
-      /* a panel with overflowing content gets the keys for its own scrolling */
-      const sc = t.closest('.panel');
-      if (sc && sc.scrollHeight > sc.clientHeight + 1) return;
-    }
-    e.preventDefault();
-    pendingStop = Math.min(STOP_META.length - 1, Math.max(0, pendingStop + (down ? 1 : -1)));
-    scrollToStop(pendingStop);
-  });
-
   document.getElementById('year')?.append(String(new Date().getFullYear()));
 
   return {
-    sync,
+    showDistrict,
     setLiveCount,
-    set onStopChange(fn) { onStopChange = fn; },
+    hideHint,
+    initialDistrict,
+    set onDistrictChange(fn) { onDistrictChange = fn; },
     hideLoader() {
       const l = document.getElementById('loader');
       if (l) { l.classList.add('done'); setTimeout(() => l.remove(), 900); }

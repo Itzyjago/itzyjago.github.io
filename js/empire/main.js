@@ -1,8 +1,11 @@
-/* The Neon Empire — bootstrap. */
+/* The Neon Empire — drive-mode bootstrap. */
 import * as THREE from 'three';
 import { createWorld } from './world.js';
 import { buildLandmarks } from './landmarks.js';
-import { CameraRig } from './camera-path.js';
+import { Car } from './car.js';
+import { createControls } from './drive-controls.js';
+import { ChaseCam } from './chase-cam.js';
+import { createDistricts, DISTRICTS } from './districts.js';
 import { createLanterns } from './lanterns.js';
 import { createOverlay } from './overlay.js';
 import { updateFlicker } from './signage.js';
@@ -29,23 +32,38 @@ try {
   throw new Error('WebGL unavailable');
 }
 
-const { group, updaters } = buildLandmarks();
+const { group, updaters, colliders } = buildLandmarks();
 world.scene.add(group);
 
-const rig = new CameraRig(world.camera);
+const car = new Car(world.scene, [...world.colliders, ...colliders]);
+const controls = createControls(car, world.camera, canvas, world.scene);
+const chase = new ChaseCam(world.camera);
 const lanterns = createLanterns(world.scene);
-const overlay = createOverlay(rig);
 
-overlay.onStopChange = (id) => presence.setSection(id);
+const overlay = createOverlay({
+  onFastTravel(id) {
+    const d = DISTRICTS.find((x) => x.id === id);
+    if (d) controls.fastTravelTo(d.x, d.z);
+  },
+});
+
+/* deep links spawn you in that district */
+if (overlay.initialDistrict && overlay.initialDistrict !== 'hero') {
+  const d = DISTRICTS.find((x) => x.id === overlay.initialDistrict);
+  if (d) car.place(d.x, d.z, d.heading);
+}
+
+const districts = createDistricts((id) => overlay.showDistrict(id));
+overlay.onDistrictChange = (id) => presence.setSection(id || 'hero');
+
 presence.onCount((n) => {
   overlay.setLiveCount(n);
-  /* everyone but you — you're holding the camera */
+  /* everyone but you — you're holding the wheel */
   lanterns.setCount(Math.max(0, n - 1));
 });
 presence.start();
 
 addEventListener('resize', () => world.resize());
-overlay.sync();
 
 /* ---- render loop with adaptive quality ---- */
 const clock = new THREE.Clock();
@@ -78,8 +96,10 @@ function loop() {
   const dt = Math.min(0.05, clock.getDelta());
   const t = clock.elapsedTime;
 
-  overlay.sync(); /* every frame — the camera eases, panels must follow */
-  rig.update(t, dt);
+  controls.update(t, dt);
+  if (car.moved) overlay.hideHint();
+  districts.update(car.pos);
+  chase.update(car, dt);
   world.update(t, dt);
   lanterns.update(t, dt);
   updateFlicker(t);

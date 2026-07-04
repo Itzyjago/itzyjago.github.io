@@ -76,9 +76,8 @@
   </script>
 
   <!-- the city -->
-  <canvas id="city" aria-hidden="true"></canvas>
+  <canvas id="city" aria-label="The Neon Empire — drive the city with WASD, arrow keys, or by tapping the street"></canvas>
   <div class="veil" aria-hidden="true"></div>
-  <div id="scrollSpacer" aria-hidden="true"></div>
 
   <!-- ===== NAV ===== -->
   <header class="nav" id="nav">
@@ -112,15 +111,11 @@
   </header>
 
   <!-- ===== HUD ===== -->
-  <nav class="dmap" aria-label="District map">
-    <div class="dmap__track"><i id="dmapFill"></i></div>
-    <div class="dmap__stops" id="dmapStops"></div>
-  </nav>
   <div class="hud-right">
     <span id="blockReadout">BLK 01 · ARRIVAL</span>
     <span id="liveBadge"><span class="dot"></span><span id="liveCount">1</span>&nbsp;IN THE DISTRICT</span>
   </div>
-  <div class="scroll-hint" id="scrollHint">Scroll to enter ↓</div>
+  <div class="scroll-hint" id="driveHint">W A S D to drive — or click the street</div>
 
   <main>
     <!-- ===== 一 ARRIVAL (hero) ===== -->
