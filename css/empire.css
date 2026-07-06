@@ -445,7 +445,11 @@ a { color: var(--teal); }
     padding: 24px 20px 20px;
   }
   .panel.visible { transform: none; }
-  .panel--hero { left: 0; padding: 0 20px; bottom: 12vh; background: none; overflow-y: auto; max-height: calc(88vh - 82px); }
+  /* on phones the hero becomes a constrained, scrollable box (like the other
+     bottom-sheet panels) — it must take back pointer-events here or the CTAs
+     that no longer fit (Hire Me, résumé, socials, trust line) are unreachable:
+     touch-drag falls through to the canvas instead of scrolling the box */
+  .panel--hero { left: 0; padding: 0 20px; bottom: 12vh; background: none; overflow-y: auto; max-height: calc(88vh - 82px); pointer-events: auto; }
   .panel--projects { width: 100%; }
   .proj__grid, .svc, .skills__grid { grid-template-columns: 1fr; }
   .stats { grid-template-columns: repeat(2, 1fr); }
