@@ -80,6 +80,16 @@
     </div>
   </header>
 
+  <!-- ===== SECTION RAIL ===== -->
+  <nav class="section-rail" aria-label="Section position">
+    <a href="#hero" data-rail="hero" aria-label="Arrival"><span></span></a>
+    <a href="#services" data-rail="services" aria-label="Services"><span></span></a>
+    <a href="#about" data-rail="about" aria-label="About"><span></span></a>
+    <a href="#projects" data-rail="projects" aria-label="Work"><span></span></a>
+    <a href="#skills" data-rail="skills" aria-label="Skills"><span></span></a>
+    <a href="#contact" data-rail="contact" aria-label="Contact"><span></span></a>
+  </nav>
+
   <main>
     <!-- ===== HERO ===== -->
     <section class="hero" id="hero">
@@ -215,35 +225,35 @@
       <div class="container certs reveal">
         <h4>Certifications</h4>
         <div class="cert__grid">
-          <button class="cert" type="button">
+          <button class="cert reveal" type="button">
             <img src="assets/certs/cisco-intro-iot-digital-transformation.png" alt="Cisco Networking Academy certificate — Introduction to IoT and Digital Transformation" loading="lazy" />
             <div class="cert__meta">
               <h5>Introduction to IoT and Digital Transformation</h5>
               <span class="cert__org">Cisco Networking Academy · 05 May 2025</span>
             </div>
           </button>
-          <button class="cert" type="button">
+          <button class="cert reveal" type="button">
             <img src="assets/certs/cisco-operating-systems-basics.png" alt="Cisco Networking Academy certificate — Operating Systems Basics" loading="lazy" />
             <div class="cert__meta">
               <h5>Operating Systems Basics</h5>
               <span class="cert__org">Cisco Networking Academy · 05 May 2025</span>
             </div>
           </button>
-          <button class="cert" type="button">
+          <button class="cert reveal" type="button">
             <img src="assets/certs/ids-payment-operations.png" alt="Arellano Global certificate — IDS Pagos Payment Operations Platform" loading="lazy" />
             <div class="cert__meta">
               <h5>IDS Pagos — Payment Operations Platform</h5>
               <span class="cert__org">Arellano Global · 28 May 2026</span>
             </div>
           </button>
-          <button class="cert" type="button">
+          <button class="cert reveal" type="button">
             <img src="assets/certs/meridian-delivery-platform.png" alt="Arellano Global certificate — Meridian Client Delivery & Monitoring Platform" loading="lazy" />
             <div class="cert__meta">
               <h5>Meridian — Client Delivery &amp; Monitoring Platform</h5>
               <span class="cert__org">Arellano Global · 18 June 2026</span>
             </div>
           </button>
-          <button class="cert" type="button">
+          <button class="cert reveal" type="button">
             <img src="assets/certs/growthos-automation-saas.png" alt="Arellano Global certificate — GrowthOS Agency Automation SaaS Platform" loading="lazy" />
             <div class="cert__meta">
               <h5>GrowthOS — Agency Automation SaaS Platform</h5>
@@ -264,14 +274,21 @@
         </div>
 
         <div class="ghtrack reveal">
-          <div class="ghtrack__head">
-            <span class="ghtrack__label">Live commit activity</span>
-            <a class="ghtrack__link" href="https://github.com/Itzyjago" target="_blank" rel="noopener">@Itzyjago on GitHub ↗</a>
+          <div class="ghtrack__bar">
+            <span class="ghtrack__dot"></span><span class="ghtrack__dot"></span><span class="ghtrack__dot"></span>
+            <span class="ghtrack__barlabel">activity.log</span>
           </div>
-          <img class="ghtrack__chart" src="https://ghchart.rshah.org/14140F/Itzyjago" alt="Itzyjago's GitHub contribution graph" loading="lazy" width="1000" height="112" />
+          <div class="ghtrack__body">
+            <div class="ghtrack__head">
+              <span class="ghtrack__label">Live commit activity</span>
+              <a class="ghtrack__link" href="https://github.com/Itzyjago" target="_blank" rel="noopener">@Itzyjago on GitHub ↗</a>
+            </div>
+            <img class="ghtrack__chart" src="https://ghchart.rshah.org/14140F/Itzyjago" alt="Itzyjago's GitHub contribution graph" loading="lazy" width="1000" height="112" />
+          </div>
         </div>
 
-        <div class="projects__grid">
+        <p class="work-group__label">Live &amp; maintained — Arellano Global</p>
+        <div class="projects__grid projects__grid--featured">
 
           <article class="project project--live reveal">
             <div class="project__top">
@@ -327,12 +344,17 @@
             </a>
           </article>
 
+        </div>
+
+        <p class="work-group__label">More work</p>
+        <div class="projects__grid projects__grid--compact">
+
           <article class="project reveal">
             <div class="project__top">
               <div class="project__icon project__icon--muted">TF</div>
               <div class="project__heading">
                 <div class="project__titlerow"><h3>TalentFlow</h3></div>
-                <span class="project__org">Applicant Tracking System</span>
+                <span class="project__org">Freelance · Applicant Tracking System</span>
               </div>
             </div>
             <p>End-to-end recruitment platform covering job posting, applicant registration, automated résumé scoring, interview scheduling, and the full offer/hire workflow.</p>
@@ -344,7 +366,7 @@
               <div class="project__icon project__icon--muted">HI</div>
               <div class="project__heading">
                 <div class="project__titlerow"><h3>Hope Integrated School</h3></div>
-                <span class="project__org">School Management System</span>
+                <span class="project__org">Freelance · School Management System</span>
               </div>
             </div>
             <p>Production-grade modular school ERP with RBAC governance, enrollment scheduling, QR-based attendance, GPA computation, and PDF report-card generation.</p>
@@ -356,7 +378,7 @@
               <div class="project__icon project__icon--muted">EE</div>
               <div class="project__heading">
                 <div class="project__titlerow"><h3>EmpowerEd</h3></div>
-                <span class="project__org">OSY Empowerment Platform</span>
+                <span class="project__org">Capstone Project · Quezon City Government</span>
               </div>
             </div>
             <p>Web platform connecting Out-of-School Youth with coordinators, instructors, and employers — featuring full course lifecycle, automated grading, and certificate issuance.</p>

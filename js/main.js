@@ -24,6 +24,28 @@
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 
+  /* ---- section rail (current-section indicator) ---- */
+  var railLinks = document.querySelectorAll('.section-rail a');
+  if (railLinks.length && 'IntersectionObserver' in window) {
+    var sections = [];
+    railLinks.forEach(function (link) {
+      var id = link.getAttribute('data-rail');
+      var section = document.getElementById(id);
+      if (section) sections.push({ id: id, el: section, link: link });
+    });
+    var railObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        var match = sections.find(function (s) { return s.el === entry.target; });
+        if (!match) return;
+        if (entry.isIntersecting) {
+          railLinks.forEach(function (l) { l.classList.remove('active'); });
+          match.link.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-45% 0px -45% 0px', threshold: 0 });
+    sections.forEach(function (s) { railObserver.observe(s.el); });
+  }
+
   /* ---- certificate modal ---- */
   var certModal = document.getElementById('certModal');
   if (certModal) {
