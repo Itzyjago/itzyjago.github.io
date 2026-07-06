@@ -4,178 +4,178 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Carlo Ditalo — Full-Stack & AI Automation Developer</title>
-  <meta name="description" content="Carlo Isidro B. Ditalo — Full-Stack & Backend Developer specializing in AI automation, Claude API integrations, Laravel, Next.js, React, and FastAPI. Explore The Neon Empire — an interactive 3D city where every building is a shipped project. Available for freelance projects and full-time roles." />
+  <meta name="description" content="Carlo Isidro B. Ditalo — Full-Stack & Backend Developer specializing in AI automation, Claude API integrations, Laravel, Next.js, React, and FastAPI. I design, build, and maintain production platforms. Available for freelance projects and full-time roles." />
   <meta name="author" content="Carlo Isidro B. Ditalo" />
-  <meta name="theme-color" content="#07080d" />
+  <meta name="theme-color" content="#FAFAF9" />
+
+  <!-- set theme before first paint to avoid a light/dark flash -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    })();
+  </script>
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://itzyjago.github.io/" />
-  <meta property="og:title" content="Carlo Ditalo — The Neon Empire" />
-  <meta property="og:description" content="A 3D neon city portfolio — every building is a shipped project. Full-Stack & AI Automation Developer, available for freelance work and full-time roles." />
+  <meta property="og:title" content="Carlo Ditalo — Full-Stack & AI Automation Developer" />
+  <meta property="og:description" content="I design, build, and maintain production platforms and AI-powered automation. Available for freelance work and full-time roles." />
   <meta property="og:image" content="https://itzyjago.github.io/assets/og-image.svg" />
   <meta name="twitter:card" content="summary_large_image" />
 
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
-
-  <!-- 3D capability gate: fall back to the lite site before loading anything heavy -->
-  <script>
-    (function () {
-      function toLite() { location.replace('lite.html' + location.hash); }
-      try {
-        var pref = null;
-        try { pref = localStorage.getItem('preferLite'); } catch (e) { /* storage blocked ≠ no WebGL */ }
-        var q = new URLSearchParams(location.search);
-        if (q.has('force3d')) { try { localStorage.removeItem('preferLite'); } catch (e) {} }
-        else {
-          if (q.has('lite') || pref === '1') { toLite(); return; }
-          if (matchMedia('(prefers-reduced-motion: reduce)').matches) { toLite(); return; }
-        }
-        /* main.js is an ES module resolved via import map — no importmap support
-           means the loader would hang forever on a black screen */
-        if (!(window.HTMLScriptElement && HTMLScriptElement.supports && HTMLScriptElement.supports('importmap'))) { toLite(); return; }
-        var c = document.createElement('canvas');
-        if (!(c.getContext('webgl2') || c.getContext('webgl'))) { toLite(); }
-      } catch (e) { toLite(); }
-      /* any road out to the lite site should stick for next visit */
-      addEventListener('click', function (e) {
-        var a = e.target && e.target.closest && e.target.closest('a[href^="lite.html"]');
-        if (a) { try { localStorage.setItem('preferLite', '1'); } catch (err) {} }
-      }, true);
-    })();
-  </script>
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;450;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="css/empire.css" />
-
-  <script type="importmap">{ "imports": { "three": "./js/vendor/three.module.min.js" } }</script>
+  <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
-  <a class="skip" href="lite.html">Skip the 3D — view the lite site</a>
+  <!-- scroll progress -->
+  <div class="scrollbar" id="scrollbar" aria-hidden="true"></div>
 
-  <!-- loader -->
-  <div id="loader" role="status" aria-label="Loading">
-    <div class="loader__inner">
-      <div class="loader__kanji">NEON EMPIRE</div>
-      <div class="loader__label">ENTERING THE DISTRICT…</div>
-    </div>
-  </div>
-  <script>
-    /* watchdog: if the city never renders (slow net, module failure), offer a way out */
-    setTimeout(function () {
-      var l = document.getElementById('loader');
-      if (l && !l.classList.contains('done')) {
-        var lbl = l.querySelector('.loader__label');
-        if (lbl) lbl.innerHTML = 'Taking a while… <a href="lite.html">enter the lite site instead →</a>';
-      }
-    }, 9000);
-  </script>
-
-  <!-- the city -->
-  <canvas id="city" aria-label="The Neon Empire — drive the city with WASD, arrow keys, or by tapping the street"></canvas>
-  <div class="veil" aria-hidden="true"></div>
+  <!-- ===== STATUS STRIP ===== -->
+  <div class="status-strip"><span class="dot"></span> 3 platforms live · shipping in the open · <a href="https://github.com/Itzyjago" target="_blank" rel="noopener">@Itzyjago</a></div>
 
   <!-- ===== NAV ===== -->
   <header class="nav" id="nav">
-    <a href="#" class="brand" data-stop-link="hero" aria-label="Carlo Ditalo — home">
-      <span class="brand__mark">
-        <svg viewBox="0 0 48 48" aria-hidden="true">
-          <defs>
-            <linearGradient id="navGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#36f1cd"/><stop offset="1" stop-color="#7c5cff"/></linearGradient>
-            <linearGradient id="navFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#161a28"/><stop offset="1" stop-color="#0a0c14"/></linearGradient>
-          </defs>
-          <rect x="2" y="2" width="44" height="44" rx="13" fill="url(#navFill)" stroke="url(#navGrad)" stroke-width="2.5"/>
-          <text x="24" y="25.5" text-anchor="middle" dominant-baseline="central" font-family="'Space Grotesk',sans-serif" font-size="21" font-weight="700" fill="url(#navGrad)" letter-spacing="-1.2">CD</text>
-        </svg>
-      </span>
-      <span class="brand__word">
-        <span class="brand__name">Carlo Ditalo</span>
-        <span class="brand__role">Full-Stack · AI Automation</span>
-      </span>
-    </a>
-    <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
-      <span></span><span></span><span></span>
-    </button>
-    <nav class="nav__links" id="navLinks">
-      <a href="#services" data-stop-link="services">Services</a>
-      <a href="#about" data-stop-link="about">About</a>
-      <a href="#projects" data-stop-link="projects">Work</a>
-      <a href="#skills" data-stop-link="skills">Skills</a>
-      <a href="lite.html" class="nav__lite" id="liteLink" title="Prefer a classic page? Same content, no 3D.">LITE</a>
-      <a href="#contact" class="nav__cta" data-stop-link="contact">Let's talk</a>
-    </nav>
+    <div class="container nav__inner">
+      <a href="#hero" class="brand" aria-label="Carlo Ditalo — home">
+        <span class="brand__mark">
+          <svg viewBox="0 0 48 48" aria-hidden="true">
+            <defs>
+              <linearGradient id="navGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#14140F"/><stop offset="1" stop-color="#55554C"/></linearGradient>
+              <linearGradient id="navFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a1a1a"/><stop offset="1" stop-color="#0a0a0a"/></linearGradient>
+            </defs>
+            <rect x="2" y="2" width="44" height="44" rx="13" fill="url(#navFill)" stroke="url(#navGrad)" stroke-width="2.5"/>
+            <rect x="4" y="4" width="40" height="18" rx="11" fill="#ffffff" opacity="0.045"/>
+            <text x="24" y="25.5" text-anchor="middle" dominant-baseline="central" font-family="'Space Grotesk',sans-serif" font-size="21" font-weight="700" fill="url(#navGrad)" letter-spacing="-1.2">CD</text>
+          </svg>
+        </span>
+        <span class="brand__word">
+          <span class="brand__name">Carlo Ditalo</span>
+          <span class="brand__role">Full-Stack · AI Automation</span>
+        </span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="#services">Services</a>
+        <a href="#about">About</a>
+        <a href="#projects">Work</a>
+        <a href="#skills">Skills</a>
+        <a href="#contact" class="nav__cta">Let's talk</a>
+      </nav>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </button>
+      <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
   </header>
 
-  <!-- ===== HUD ===== -->
-  <div class="hud-right">
-    <span id="blockReadout">BLK 01 · ARRIVAL</span>
-    <span id="liveBadge"><span class="dot"></span><span id="liveCount">1</span>&nbsp;IN THE DISTRICT</span>
-  </div>
-  <div class="scroll-hint" id="driveHint">W A S D to drive — or click the street</div>
-
   <main>
-    <!-- ===== 一 ARRIVAL (hero) ===== -->
-    <section class="panel panel--hero" id="panel-hero">
-      <div class="hero__scrim" aria-hidden="true"></div>
-      <div class="panel__body">
-        <p class="hero__avail"><span class="dot"></span> Available for freelance projects &amp; full-time roles</p>
-        <h1>Carlo Isidro <span class="grad">Ditalo</span></h1>
-        <p class="hero__role">FULL-STACK &amp; AI AUTOMATION DEVELOPER</p>
-        <p class="hero__pitch panel-p">
-          I design, build, and <strong>maintain production platforms</strong> and AI-powered automation
-          for growing companies — turning manual workflows into reliable software with Laravel,
-          Next.js, FastAPI, and the Anthropic <strong>Claude API</strong>. Welcome to my city:
-          every building here is something I shipped.
-        </p>
-        <div class="hero__actions">
-          <a href="#contact" class="btn btn--primary" data-stop-link="contact">Hire Me
-            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-          </a>
-          <a href="assets/Carlo-Ditalo-Resume.pdf" class="btn btn--ghost" download>
-            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Download Résumé
-          </a>
+    <!-- ===== HERO ===== -->
+    <section class="hero" id="hero">
+      <div class="hero__bg" aria-hidden="true">
+        <div class="hero__grid"></div>
+      </div>
+      <div class="container hero__inner">
+        <div class="hero__content reveal">
+          <p class="hero__eyebrow"><span class="dot"></span> Available for freelance projects &amp; full-time roles</p>
+          <h1 class="hero__title">Carlo Isidro <span class="grad">Ditalo</span></h1>
+          <p class="hero__role">Full-Stack &amp; AI Automation Developer</p>
+          <p class="hero__pitch">
+            I design, build, and <strong>maintain production platforms</strong> and AI-powered automation
+            for growing companies — turning manual workflows into reliable software with Laravel,
+            Next.js, FastAPI, and the Anthropic <strong>Claude API</strong>.
+          </p>
+          <div class="hero__actions">
+            <a href="#contact" class="btn btn--primary">Hire Me
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </a>
+            <a href="assets/Carlo-Ditalo-Resume.pdf" class="btn btn--ghost" download>
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download Résumé
+            </a>
+          </div>
+          <div class="hero__socials">
+            <a href="https://github.com/Itzyjago" target="_blank" rel="noopener" aria-label="GitHub">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.27-.01-1.16-.02-2.1-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.09 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.07.78 2.16 0 1.56-.01 2.82-.01 3.2 0 .31.21.68.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+            </a>
+            <a href="https://linkedin.com/in/carlo-isidro-ditalo-b439a2362" target="_blank" rel="noopener" aria-label="LinkedIn">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.22.79 24 1.77 24h20.45c.98 0 1.78-.78 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>
+            </a>
+            <a href="mailto:ditalocarloisidro11301@gmail.com" aria-label="Email">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>
+            </a>
+          </div>
         </div>
-        <div class="hero__socials">
-          <a href="https://github.com/Itzyjago" target="_blank" rel="noopener" aria-label="GitHub">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.27-.01-1.16-.02-2.1-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.09 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.07.78 2.16 0 1.56-.01 2.82-.01 3.2 0 .31.21.68.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
-          </a>
-          <a href="https://linkedin.com/in/carlo-isidro-ditalo-b439a2362" target="_blank" rel="noopener" aria-label="LinkedIn">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.22.79 24 1.77 24h20.45c.98 0 1.78-.78 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>
-          </a>
-          <a href="mailto:ditalocarloisidro11301@gmail.com" aria-label="Email">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>
-          </a>
+
+        <div class="hero__portrait reveal">
+          <div class="portrait">
+            <div class="portrait__ring" aria-hidden="true"></div>
+            <img src="assets/carlo.png" alt="Carlo Isidro Ditalo" width="320" height="320" loading="eager" />
+            <span class="portrait__chip portrait__chip--top"><span class="dot"></span> Open to work</span>
+            <span class="portrait__chip portrait__chip--bottom">🇵🇭 Quezon City, PH</span>
+          </div>
         </div>
-        <p class="hero__trust">Now building &amp; maintaining in production: <b>GrowthOS · Meridian · IDS</b> — Arellano Global</p>
+      </div>
+
+      <!-- trust strip -->
+      <div class="container">
+        <div class="trust reveal">
+          <span class="trust__label">Currently building &amp; maintaining in production</span>
+          <div class="trust__items">
+            <span>GrowthOS</span><span class="trust__dot"></span>
+            <span>Meridian</span><span class="trust__dot"></span>
+            <span>IDS</span>
+            <span class="trust__org">— Arellano Global</span>
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- ===== 二 SERVICES ===== -->
-    <section class="panel" id="panel-services" aria-label="Services">
-      <span class="panel__tab" aria-hidden="true">MARKET</span>
-      <div class="panel__body">
-        <p class="eyebrow">02 · Services <span class="jp">THE MARKET STREET</span></p>
-        <h2>Built to ship and scale</h2>
-        <p>End-to-end engineering — from architecture and build to deployment and ongoing maintenance.</p>
-        <div class="svc">
-          <article class="svc__card">
+    <!-- ===== SERVICES ===== -->
+    <section class="section" id="services">
+      <div class="container">
+        <div class="section__head reveal">
+          <p class="section__kicker">What I do</p>
+          <h2 class="section__title">Services built to ship and scale</h2>
+          <p class="section__sub">End-to-end engineering — from architecture and build to deployment and ongoing maintenance.</p>
+        </div>
+        <div class="services__grid">
+          <article class="card reveal">
+            <div class="card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            </div>
             <h3>Full-Stack Web Apps</h3>
             <p>Custom platforms in Laravel, Next.js, React, and Tailwind — client portals, admin dashboards, and internal tools, architected, shipped, and deployed.</p>
           </article>
-          <article class="svc__card">
+          <article class="card reveal">
+            <div class="card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v1H7a3 3 0 0 0-3 3v2a3 3 0 0 0 0 6 3 3 0 0 0 3 3h2"/><circle cx="12" cy="12" r="2"/><path d="M15 6h2a3 3 0 0 1 3 3v2a3 3 0 0 1 0 6 3 3 0 0 1-3 3h-2"/></svg>
+            </div>
             <h3>AI Automation &amp; Agents</h3>
             <p>Claude-powered agents and pipelines that automate document processing, data extraction, and reporting — with prompt engineering, tool use, and prompt caching for cost-efficiency.</p>
           </article>
-          <article class="svc__card">
+          <article class="card reveal">
+            <div class="card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            </div>
             <h3>API &amp; Integrations</h3>
             <p>Third-party integrations done right — Xero, Whop, billing &amp; payment flows, Keycloak SSO, Gmail SMTP, and custom REST APIs secured with JWT.</p>
           </article>
-          <article class="svc__card">
+          <article class="card reveal">
+            <div class="card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg>
+            </div>
             <h3>Backend &amp; Databases</h3>
             <p>Robust server-side engineering with FastAPI, Laravel, and MySQL — RBAC, scheduling, reporting, PDF generation, and clean, maintainable data models.</p>
           </article>
@@ -183,116 +183,227 @@
       </div>
     </section>
 
-    <!-- ===== 三 ABOUT (HQ) ===== -->
-    <section class="panel" id="panel-about" aria-label="About">
-      <span class="panel__tab" aria-hidden="true">HQ</span>
-      <div class="panel__body">
-        <p class="eyebrow">03 · About <span class="jp">HQ TOWER</span></p>
-        <h2>An engineer who ships, end to end.</h2>
-        <div class="about__grid">
-          <div class="about__portrait">
-            <img src="assets/carlo.png" alt="Carlo Isidro Ditalo" width="92" height="92" loading="lazy" />
-          </div>
-          <div>
-            <p>I'm a Full-Stack and Backend Developer based in Quezon City, Philippines 🇵🇭, building production web applications, AI-powered automation, and enterprise platforms.</p>
-          </div>
+    <!-- ===== ABOUT ===== -->
+    <section class="section section--alt" id="about">
+      <div class="container about__inner">
+        <div class="about__text reveal">
+          <p class="section__kicker">About</p>
+          <h2 class="section__title">An engineer who ships, end to end.</h2>
+          <p>
+            I'm a Full-Stack and Backend Developer based in Quezon City, Philippines, building
+            production web applications, AI-powered automation, and enterprise platforms.
+          </p>
+          <p>
+            I'm currently a Junior Software &amp; AI Engineer at <strong>Arellano Global</strong>, where I
+            create and maintain client-facing platforms — <strong>GrowthOS</strong>, <strong>Meridian</strong>,
+            and <strong>IDS</strong> — and build agentic programs on the Anthropic Claude API. Before that I
+            spent two years as an independent freelancer, owning entire project lifecycles solo, from
+            scoping to delivery, across multiple industries.
+          </p>
+          <p>
+            Whether you need a product built from scratch, an AI workflow that removes manual busywork,
+            or a reliable engineer to join your team — I deliver well-tested, maintainable work.
+          </p>
         </div>
-        <p>I'm currently a Junior Software &amp; AI Engineer at <strong>Arellano Global</strong>, where I create and maintain client-facing platforms — <strong>GrowthOS</strong>, <strong>Meridian</strong>, and <strong>IDS</strong> — and build agentic programs on the Anthropic Claude API. Before that I spent two years as an independent freelancer, owning entire project lifecycles solo, from scoping to delivery, across multiple industries.</p>
-        <p>Whether you need a product built from scratch, an AI workflow that removes manual busywork, or a reliable engineer to join your team — I deliver well-tested, maintainable work.</p>
-        <div class="stats">
-          <div class="stat"><span class="stat__num">2+</span><span class="stat__label">Years building for clients</span></div>
-          <div class="stat"><span class="stat__num">7+</span><span class="stat__label">Platforms shipped</span></div>
-          <div class="stat"><span class="stat__num">3</span><span class="stat__label">Live platforms maintained</span></div>
-          <div class="stat"><span class="stat__num">100%</span><span class="stat__label">End-to-end ownership</span></div>
+        <div class="about__stats reveal">
+          <div class="stat"><span class="stat__num">2+</span><span class="stat__label">Years building<br />for clients</span></div>
+          <div class="stat"><span class="stat__num">7+</span><span class="stat__label">Platforms<br />shipped</span></div>
+          <div class="stat"><span class="stat__num">3</span><span class="stat__label">Live platforms<br />maintained now</span></div>
+          <div class="stat"><span class="stat__num">100%</span><span class="stat__label">End-to-end<br />ownership</span></div>
+        </div>
+      </div>
+      <div class="container certs reveal">
+        <h4>Certifications</h4>
+        <div class="cert__grid">
+          <a class="cert" href="assets/certs/cisco-intro-iot-digital-transformation.png" target="_blank" rel="noopener">
+            <img src="assets/certs/cisco-intro-iot-digital-transformation.png" alt="Cisco Networking Academy certificate — Introduction to IoT and Digital Transformation" loading="lazy" />
+            <div class="cert__meta">
+              <h5>Introduction to IoT and Digital Transformation</h5>
+              <span class="cert__org">Cisco Networking Academy · 05 May 2025</span>
+            </div>
+          </a>
+          <a class="cert" href="assets/certs/cisco-operating-systems-basics.png" target="_blank" rel="noopener">
+            <img src="assets/certs/cisco-operating-systems-basics.png" alt="Cisco Networking Academy certificate — Operating Systems Basics" loading="lazy" />
+            <div class="cert__meta">
+              <h5>Operating Systems Basics</h5>
+              <span class="cert__org">Cisco Networking Academy · 05 May 2025</span>
+            </div>
+          </a>
+          <a class="cert" href="assets/certs/ids-payment-operations.png" target="_blank" rel="noopener">
+            <img src="assets/certs/ids-payment-operations.png" alt="Arellano Global certificate — IDS Pagos Payment Operations Platform" loading="lazy" />
+            <div class="cert__meta">
+              <h5>IDS Pagos — Payment Operations Platform</h5>
+              <span class="cert__org">Arellano Global · 28 May 2026</span>
+            </div>
+          </a>
+          <a class="cert" href="assets/certs/meridian-delivery-platform.png" target="_blank" rel="noopener">
+            <img src="assets/certs/meridian-delivery-platform.png" alt="Arellano Global certificate — Meridian Client Delivery & Monitoring Platform" loading="lazy" />
+            <div class="cert__meta">
+              <h5>Meridian — Client Delivery &amp; Monitoring Platform</h5>
+              <span class="cert__org">Arellano Global · 18 June 2026</span>
+            </div>
+          </a>
+          <a class="cert" href="assets/certs/growthos-automation-saas.png" target="_blank" rel="noopener">
+            <img src="assets/certs/growthos-automation-saas.png" alt="Arellano Global certificate — GrowthOS Agency Automation SaaS Platform" loading="lazy" />
+            <div class="cert__meta">
+              <h5>GrowthOS — Agency Automation SaaS Platform</h5>
+              <span class="cert__org">Arellano Global · 05 July 2026</span>
+            </div>
+          </a>
         </div>
       </div>
     </section>
 
-    <!-- ===== 四 PROJECTS (EMPIRE DISTRICT) ===== -->
-    <section class="panel panel--projects" id="panel-projects" aria-label="Projects">
-      <span class="panel__tab" aria-hidden="true">DISTRICT</span>
-      <div class="panel__body">
-        <p class="eyebrow">04 · Selected work <span class="jp">THE EMPIRE DISTRICT</span></p>
-        <h2>Every building here is real.</h2>
-        <p>The towers around you are platforms I created and <strong>actively maintain</strong> in production — plus apps I've shipped end-to-end.</p>
-        <div class="proj__grid">
-          <article class="proj proj--live">
-            <div class="proj__head"><h3>GrowthOS Platform</h3><span class="badge--live"><i></i>LIVE · MAINTAINED</span></div>
-            <span class="proj__org">Arellano Global · Created &amp; actively maintained</span>
-            <p>Client &amp; admin-facing platform with onboarding flows and credit-based billing via Whop. Integrated the Anthropic API to power AI-driven tools using prompt engineering, tool use, and prompt caching.</p>
-            <ul class="tags"><li>Next.js</li><li>Whop API</li><li>Anthropic API</li><li>NocoDB</li></ul>
-            <a class="proj__link" href="https://platform.growthos.to/" target="_blank" rel="noopener">Visit live platform ↗</a>
-          </article>
-          <article class="proj proj--live">
-            <div class="proj__head"><h3>Meridian</h3><span class="badge--live"><i></i>LIVE · MAINTAINED</span></div>
-            <span class="proj__org">Arellano Global · Created &amp; actively maintained</span>
-            <p>Client-facing container tracking &amp; logistics platform. Maintained and extended with new features, database work, and UI improvements — secured with single sign-on via Keycloak.</p>
-            <ul class="tags"><li>Next.js</li><li>Keycloak SSO</li><li>NocoDB</li><li>Logistics</li></ul>
-            <a class="proj__link" href="https://app.meridianintel.co/" target="_blank" rel="noopener">Visit live platform ↗</a>
-          </article>
-          <article class="proj proj--live">
-            <div class="proj__head"><h3>IDS Platform</h3><span class="badge--live"><i></i>LIVE · MAINTAINED</span></div>
-            <span class="proj__org">Arellano Global · Created &amp; actively maintained</span>
+    <!-- ===== PROJECTS ===== -->
+    <section class="section" id="projects">
+      <div class="container">
+        <div class="section__head reveal">
+          <p class="section__kicker">Selected work</p>
+          <h2 class="section__title">Platforms in production</h2>
+          <p class="section__sub">Platforms I created and <strong>actively maintain</strong> in production — plus apps I've shipped end-to-end.</p>
+        </div>
+
+        <div class="ghtrack reveal">
+          <div class="ghtrack__head">
+            <span class="ghtrack__label">Live commit activity</span>
+            <a class="ghtrack__link" href="https://github.com/Itzyjago" target="_blank" rel="noopener">@Itzyjago on GitHub ↗</a>
+          </div>
+          <img class="ghtrack__chart" src="https://ghchart.rshah.org/14140F/Itzyjago" alt="Itzyjago's GitHub contribution graph" loading="lazy" width="1000" height="112" />
+        </div>
+
+        <div class="projects__grid">
+
+          <article class="project project--live reveal">
+            <div class="project__top">
+              <div class="project__icon">ID</div>
+              <div class="project__heading">
+                <div class="project__titlerow">
+                  <h3>IDS Platform</h3>
+                  <span class="badge badge--live"><span class="badge__dot"></span> Live · Maintained</span>
+                </div>
+                <span class="project__org">Arellano Global · Created &amp; actively maintained</span>
+              </div>
+            </div>
             <p>Internal operations platform integrating Xero for vendor invoice management and payment tracking. Automated PDF attachment uploads to Xero invoices — replacing a manual email workflow — plus Claude-powered automation pipelines via Make.com.</p>
             <ul class="tags"><li>Next.js</li><li>NocoDB</li><li>Xero API</li><li>Make.com</li><li>Claude AI</li></ul>
-            <a class="proj__link" href="https://ids.arellanoglobal.org/" target="_blank" rel="noopener">Visit live platform ↗</a>
+            <a class="project__link" href="https://ids.arellanoglobal.org/" target="_blank" rel="noopener">Visit live platform
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+            </a>
           </article>
-          <article class="proj">
-            <div class="proj__head"><h3>TalentFlow</h3></div>
-            <span class="proj__org">Applicant Tracking System</span>
+
+          <article class="project project--live reveal">
+            <div class="project__top">
+              <div class="project__icon">ME</div>
+              <div class="project__heading">
+                <div class="project__titlerow">
+                  <h3>Meridian</h3>
+                  <span class="badge badge--live"><span class="badge__dot"></span> Live · Maintained</span>
+                </div>
+                <span class="project__org">Arellano Global · Created &amp; actively maintained</span>
+              </div>
+            </div>
+            <p>Client-facing container tracking &amp; logistics platform. Maintained and extended with new features, database work, and UI improvements — secured with single sign-on via Keycloak.</p>
+            <ul class="tags"><li>Next.js</li><li>Keycloak SSO</li><li>NocoDB</li><li>Logistics</li></ul>
+            <a class="project__link" href="https://app.meridianintel.co/" target="_blank" rel="noopener">Visit live platform
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+            </a>
+          </article>
+
+          <article class="project project--live reveal">
+            <div class="project__top">
+              <div class="project__icon">GO</div>
+              <div class="project__heading">
+                <div class="project__titlerow">
+                  <h3>GrowthOS Platform</h3>
+                  <span class="badge badge--live"><span class="badge__dot"></span> Live · Maintained</span>
+                </div>
+                <span class="project__org">Arellano Global · Created &amp; actively maintained</span>
+              </div>
+            </div>
+            <p>Client &amp; admin-facing platform with onboarding flows and credit-based billing via Whop. Integrated the Anthropic API to power AI-driven tools using prompt engineering, tool use, and prompt caching.</p>
+            <ul class="tags"><li>Next.js</li><li>Whop API</li><li>Anthropic API</li><li>NocoDB</li></ul>
+            <a class="project__link" href="https://platform.growthos.to/" target="_blank" rel="noopener">Visit live platform
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+            </a>
+          </article>
+
+          <article class="project reveal">
+            <div class="project__top">
+              <div class="project__icon project__icon--muted">TF</div>
+              <div class="project__heading">
+                <div class="project__titlerow"><h3>TalentFlow</h3></div>
+                <span class="project__org">Applicant Tracking System</span>
+              </div>
+            </div>
             <p>End-to-end recruitment platform covering job posting, applicant registration, automated résumé scoring, interview scheduling, and the full offer/hire workflow.</p>
             <ul class="tags"><li>Laravel</li><li>PHP</li><li>MySQL</li><li>Tailwind CSS</li></ul>
           </article>
-          <article class="proj">
-            <div class="proj__head"><h3>Hope Integrated School</h3></div>
-            <span class="proj__org">School Management System</span>
+
+          <article class="project reveal">
+            <div class="project__top">
+              <div class="project__icon project__icon--muted">HI</div>
+              <div class="project__heading">
+                <div class="project__titlerow"><h3>Hope Integrated School</h3></div>
+                <span class="project__org">School Management System</span>
+              </div>
+            </div>
             <p>Production-grade modular school ERP with RBAC governance, enrollment scheduling, QR-based attendance, GPA computation, and PDF report-card generation.</p>
             <ul class="tags"><li>Python</li><li>FastAPI</li><li>NocoDB</li><li>Alpine.js</li><li>Tailwind</li></ul>
           </article>
-          <article class="proj">
-            <div class="proj__head"><h3>EmpowerEd</h3></div>
-            <span class="proj__org">OSY Empowerment Platform</span>
+
+          <article class="project reveal">
+            <div class="project__top">
+              <div class="project__icon project__icon--muted">EE</div>
+              <div class="project__heading">
+                <div class="project__titlerow"><h3>EmpowerEd</h3></div>
+                <span class="project__org">OSY Empowerment Platform</span>
+              </div>
+            </div>
             <p>Web platform connecting Out-of-School Youth with coordinators, instructors, and employers — featuring full course lifecycle, automated grading, and certificate issuance.</p>
             <ul class="tags"><li>Laravel</li><li>PHP</li><li>MySQL</li><li>Tailwind CSS</li></ul>
           </article>
-          <article class="proj proj--cta">
+
+          <article class="project project--cta reveal">
             <h3>Have a project in mind?</h3>
-            <p>I take on freelance builds, AI automation, and integration work. Your building could be next on this street.</p>
-            <a href="#contact" class="btn btn--primary btn--sm" data-stop-link="contact">Start a project →</a>
+            <p>I take on freelance builds, AI automation, and integration work. Let's talk about what you need.</p>
+            <a href="#contact" class="btn btn--primary btn--sm">Start a project
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </a>
           </article>
+
         </div>
       </div>
     </section>
 
-    <!-- ===== 五 SKILLS (UNDER CONSTRUCTION) ===== -->
-    <section class="panel" id="panel-skills" aria-label="Skills">
-      <span class="panel__tab" aria-hidden="true">STRUCTURE</span>
-      <div class="panel__body">
-        <p class="eyebrow">05 · Toolbox <span class="jp">THE STRUCTURE</span></p>
-        <h2>The steel this empire stands on</h2>
-        <p>Every tower in the district is held up by the same frame — these are the beams.</p>
+    <!-- ===== SKILLS ===== -->
+    <section class="section section--alt" id="skills">
+      <div class="container">
+        <div class="section__head reveal">
+          <p class="section__kicker">Toolbox</p>
+          <h2 class="section__title">Technical skills</h2>
+        </div>
         <div class="skills__grid">
-          <div class="skillgroup">
+          <div class="skillgroup reveal">
             <h4>Languages &amp; Frameworks</h4>
             <ul class="tags"><li>PHP / Laravel</li><li>JavaScript</li><li>React</li><li>Next.js</li><li>Alpine.js</li><li>Python / FastAPI</li><li>HTML</li><li>CSS</li></ul>
           </div>
-          <div class="skillgroup">
+          <div class="skillgroup reveal">
             <h4>Frontend</h4>
-            <ul class="tags"><li>Tailwind CSS</li><li>Bootstrap</li><li>Responsive UI</li><li>Three.js</li></ul>
+            <ul class="tags"><li>Tailwind CSS</li><li>Bootstrap</li><li>Responsive UI</li></ul>
           </div>
-          <div class="skillgroup">
+          <div class="skillgroup reveal">
             <h4>Databases</h4>
             <ul class="tags"><li>MySQL</li><li>SQLite</li><li>NocoDB</li><li>SQL</li></ul>
           </div>
-          <div class="skillgroup">
+          <div class="skillgroup reveal">
             <h4>AI &amp; Automation</h4>
             <ul class="tags"><li>Anthropic Claude API</li><li>Claude Code</li><li>Prompt Engineering</li><li>Tool Use</li><li>Prompt Caching</li><li>Make.com</li></ul>
           </div>
-          <div class="skillgroup">
+          <div class="skillgroup reveal">
             <h4>APIs &amp; DevOps</h4>
             <ul class="tags"><li>Xero API</li><li>Whop API</li><li>Keycloak SSO</li><li>Gmail SMTP</li><li>REST APIs</li><li>JWT Auth</li><li>Git</li><li>Docker</li><li>Postman</li></ul>
           </div>
-          <div class="skillgroup">
+          <div class="skillgroup reveal">
             <h4>Reporting &amp; Data</h4>
             <ul class="tags"><li>Power BI</li><li>ReportLab</li><li>DomPDF</li><li>PDF Generation</li><li>QR Integration</li><li>RBAC</li></ul>
           </div>
@@ -300,57 +411,92 @@
       </div>
     </section>
 
-    <!-- ===== 六 CONTACT (ROOFTOP) ===== -->
-    <section class="panel" id="panel-contact" aria-label="Contact">
-      <span class="panel__tab" aria-hidden="true">ROOFTOP</span>
-      <div class="panel__body">
-        <p class="eyebrow">06 · Get in touch <span class="jp">THE ROOFTOP</span></p>
-        <h2>Let's build something great.</h2>
-        <p>You made it to the rooftop. Have a project, a role, or a question? Send a message or reach me directly — I usually reply within a day.</p>
-        <div class="contact__links">
-          <a href="mailto:ditalocarloisidro11301@gmail.com" class="contact__link">
-            <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>
-            <span class="contact__txt"><strong>Email</strong>ditalocarloisidro11301@gmail.com</span>
-          </a>
-          <a href="https://wa.me/639606326237" target="_blank" rel="noopener" class="contact__link">
-            <svg viewBox="0 0 24 24" width="19" height="19" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.748-.607zm5.776-5.473c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.371-.025-.52-.075-.149-.669-1.611-.916-2.206-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/></svg>
-            <span class="contact__txt"><strong>WhatsApp</strong>+63 960 632 6237</span>
-          </a>
-          <a href="https://linkedin.com/in/carlo-isidro-ditalo-b439a2362" target="_blank" rel="noopener" class="contact__link">
-            <svg viewBox="0 0 24 24" width="19" height="19" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.22.79 24 1.77 24h20.45c.98 0 1.78-.78 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>
-            <span class="contact__txt"><strong>LinkedIn</strong>carlo-isidro-ditalo</span>
-          </a>
+    <!-- ===== CONTACT ===== -->
+    <section class="section" id="contact">
+      <div class="container">
+        <div class="section__head reveal" style="text-align:center;margin-left:auto;margin-right:auto;">
+          <p class="section__kicker" style="justify-content:center;">Get in touch</p>
+          <h2 class="section__title">Let's build something great.</h2>
+          <p class="section__sub" style="margin-left:auto;margin-right:auto;">Have a project, a role, or a question? Send a message or reach me directly — I usually reply within a day.</p>
         </div>
-        <form class="contact__form" id="contactForm" action="https://api.web3forms.com/submit" method="POST">
-          <input type="hidden" name="access_key" value="YOUR_WEB3FORMS_ACCESS_KEY" />
-          <input type="hidden" name="subject" value="New message from your portfolio site" />
-          <input type="checkbox" name="botcheck" class="hidden" style="display:none" tabindex="-1" />
-          <div class="field">
-            <label for="name">Name</label>
-            <input type="text" id="name" name="name" required placeholder="Your name" />
+        <div class="contact__inner">
+          <div class="contact__links reveal">
+            <a href="mailto:ditalocarloisidro11301@gmail.com" class="contact__link">
+              <span class="contact__ico"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg></span>
+              <span class="contact__txt"><strong>Email</strong>ditalocarloisidro11301@gmail.com</span>
+            </a>
+            <a href="https://wa.me/639606326237" target="_blank" rel="noopener" class="contact__link">
+              <span class="contact__ico"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.748-.607zm5.776-5.473c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.371-.025-.52-.075-.149-.669-1.611-.916-2.206-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/></svg></span>
+              <span class="contact__txt"><strong>WhatsApp</strong>+63 960 632 6237</span>
+            </a>
+            <a href="https://linkedin.com/in/carlo-isidro-ditalo-b439a2362" target="_blank" rel="noopener" class="contact__link">
+              <span class="contact__ico"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.22.79 24 1.77 24h20.45c.98 0 1.78-.78 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg></span>
+              <span class="contact__txt"><strong>LinkedIn</strong>carlo-isidro-ditalo</span>
+            </a>
+            <a href="https://github.com/Itzyjago" target="_blank" rel="noopener" class="contact__link">
+              <span class="contact__ico"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.27-.01-1.16-.02-2.1-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.09 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.07.78 2.16 0 1.56-.01 2.82-.01 3.2 0 .31.21.68.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg></span>
+              <span class="contact__txt"><strong>GitHub</strong>github.com/Itzyjago</span>
+            </a>
           </div>
-          <div class="field">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" required placeholder="you@company.com" />
-          </div>
-          <div class="field">
-            <label for="message">Message</label>
-            <textarea id="message" name="message" rows="4" required placeholder="Tell me about your project or role..."></textarea>
-          </div>
-          <button type="submit" class="btn btn--primary btn--full" id="submitBtn">Send Message</button>
-          <p class="form__status" id="formStatus" role="status" aria-live="polite"></p>
-        </form>
-        <p class="contact__foot">© <span id="year"></span> CARLO ISIDRO B. DITALO · BUILT IN THE NEON EMPIRE · <a href="lite.html">LITE SITE</a> · <a href="https://github.com/Itzyjago" target="_blank" rel="noopener">@ITZYJAGO</a></p>
+
+          <form class="contact__form reveal" id="contactForm" action="https://api.web3forms.com/submit" method="POST">
+            <input type="hidden" name="access_key" value="YOUR_WEB3FORMS_ACCESS_KEY" />
+            <input type="hidden" name="subject" value="New message from your portfolio site" />
+            <input type="checkbox" name="botcheck" class="hidden" style="display:none" />
+            <div class="field">
+              <label for="name">Name</label>
+              <input type="text" id="name" name="name" required placeholder="Your name" />
+            </div>
+            <div class="field">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" required placeholder="you@company.com" />
+            </div>
+            <div class="field">
+              <label for="message">Message</label>
+              <textarea id="message" name="message" rows="5" required placeholder="Tell me about your project or role..."></textarea>
+            </div>
+            <button type="submit" class="btn btn--primary btn--full" id="submitBtn">Send Message</button>
+            <p class="form__status" id="formStatus" role="status" aria-live="polite"></p>
+          </form>
+        </div>
       </div>
     </section>
   </main>
 
-  <noscript>
-    <div style="position:fixed;inset:0;background:#07080d;color:#e8ecf8;display:grid;place-items:center;z-index:999;text-align:center;padding:20px;">
-      <p>This experience needs JavaScript.<br /><a href="lite.html" style="color:#36f1cd;">Visit the lite site instead →</a></p>
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="container footer__inner">
+      <div class="footer__brand">
+        <a href="#hero" class="brand">
+          <span class="brand__mark">
+            <svg viewBox="0 0 48 48" aria-hidden="true">
+              <defs>
+                <linearGradient id="fgGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#14140F"/><stop offset="1" stop-color="#55554C"/></linearGradient>
+                <linearGradient id="fgFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a1a1a"/><stop offset="1" stop-color="#0a0a0a"/></linearGradient>
+              </defs>
+              <rect x="2" y="2" width="44" height="44" rx="13" fill="url(#fgFill)" stroke="url(#fgGrad)" stroke-width="2.5"/>
+              <text x="24" y="25.5" text-anchor="middle" dominant-baseline="central" font-family="'Space Grotesk',sans-serif" font-size="21" font-weight="700" fill="url(#fgGrad)" letter-spacing="-1.2">CD</text>
+            </svg>
+          </span>
+          <span class="brand__word"><span class="brand__name">Carlo Ditalo</span><span class="brand__role">Full-Stack · AI Automation</span></span>
+        </a>
+        <p class="footer__tag">Building reliable software &amp; AI automation from Quezon City, Philippines.</p>
+      </div>
+      <nav class="footer__links">
+        <a href="#services">Services</a>
+        <a href="#about">About</a>
+        <a href="#projects">Work</a>
+        <a href="#skills">Skills</a>
+        <a href="#contact">Contact</a>
+        <a href="assets/Carlo-Ditalo-Resume.pdf" download>Résumé</a>
+      </nav>
     </div>
-  </noscript>
+    <div class="container footer__bottom">
+      <p>© <span id="year"></span> Carlo Isidro B. Ditalo. All rights reserved.</p>
+      <p class="footer__built">Designed &amp; built by Carlo Ditalo · <a href="https://github.com/Itzyjago" target="_blank" rel="noopener">@Itzyjago</a></p>
+    </div>
+  </footer>
 
-  <script type="module" src="js/empire/main.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>

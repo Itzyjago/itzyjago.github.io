@@ -2,17 +2,7 @@
   publish = "."
   command = ""
 
-[functions]
-  directory = "netlify/functions"
-  node_bundler = "esbuild"
-
-# publish "." would otherwise serve these as static files
-[[redirects]]
-  from = "/netlify/*"
-  to = "/index.html"
-  status = 404
-  force = true
-
+# publish "." would otherwise serve this as a static file
 [[redirects]]
   from = "/node_modules/*"
   to = "/index.html"
