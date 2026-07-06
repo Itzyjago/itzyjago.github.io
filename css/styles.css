@@ -238,12 +238,35 @@ ul { list-style: none; }
   display: flex; flex-direction: column; text-decoration: none; overflow: hidden;
   background: var(--surface); border: 1px solid var(--border-solid);
   border-radius: var(--radius); transition: border-color .3s, transform .3s;
+  width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer;
 }
 .cert:hover { border-color: rgba(20,20,15,0.28); transform: translateY(-4px); }
 .cert img { width: 100%; display: block; aspect-ratio: 16 / 10; object-fit: cover; background: #fff; border-bottom: 1px solid var(--border-solid); }
 .cert__meta { padding: 16px 18px; }
 .cert__meta h5 { font-family: var(--font-display); font-size: 0.95rem; color: var(--text); margin: 0 0 6px; line-height: 1.35; }
 .cert__org { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-faint); }
+
+/* ---------- certificate modal ---------- */
+.cert-modal { position: fixed; inset: 0; z-index: 300; display: grid; place-items: center; padding: 32px; visibility: hidden; opacity: 0; transition: opacity .25s var(--ease), visibility 0s linear .25s; }
+.cert-modal.open { visibility: visible; opacity: 1; transition: opacity .25s var(--ease); }
+.cert-modal__backdrop { position: absolute; inset: 0; background: rgba(10,10,9,0.7); backdrop-filter: blur(3px); }
+.cert-modal__dialog {
+  position: relative; z-index: 1; max-width: min(880px, 92vw); max-height: 88vh; overflow: auto;
+  background: var(--surface); border: 1px solid var(--border-solid); border-radius: var(--radius);
+  box-shadow: 0 40px 90px -30px rgba(0,0,0,0.5);
+  transform: scale(.96); transition: transform .25s var(--ease);
+}
+.cert-modal.open .cert-modal__dialog { transform: scale(1); }
+.cert-modal__close {
+  position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; display: grid; place-items: center;
+  border-radius: 10px; border: 1px solid var(--border-solid); background: var(--surface);
+  color: var(--text-dim); cursor: pointer; transition: color .2s, border-color .2s;
+}
+.cert-modal__close:hover { color: var(--text); border-color: var(--accent); }
+.cert-modal__img { width: 100%; display: block; background: #fff; }
+.cert-modal__caption { padding: 16px 20px; }
+.cert-modal__caption h5 { font-family: var(--font-display); font-size: 1.02rem; color: var(--text); margin: 0 0 4px; }
+.cert-modal__caption span { font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-faint); }
 
 /* ---------- github activity ---------- */
 .ghtrack {

@@ -50,7 +50,7 @@
         <span class="brand__mark">
           <svg viewBox="0 0 48 48" aria-hidden="true">
             <defs>
-              <linearGradient id="navGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#14140F"/><stop offset="1" stop-color="#55554C"/></linearGradient>
+              <linearGradient id="navGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FAFAF9"/><stop offset="1" stop-color="#C9C7BD"/></linearGradient>
               <linearGradient id="navFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a1a1a"/><stop offset="1" stop-color="#0a0a0a"/></linearGradient>
             </defs>
             <rect x="2" y="2" width="44" height="44" rx="13" fill="url(#navFill)" stroke="url(#navGrad)" stroke-width="2.5"/>
@@ -215,41 +215,41 @@
       <div class="container certs reveal">
         <h4>Certifications</h4>
         <div class="cert__grid">
-          <a class="cert" href="assets/certs/cisco-intro-iot-digital-transformation.png" target="_blank" rel="noopener">
+          <button class="cert" type="button">
             <img src="assets/certs/cisco-intro-iot-digital-transformation.png" alt="Cisco Networking Academy certificate — Introduction to IoT and Digital Transformation" loading="lazy" />
             <div class="cert__meta">
               <h5>Introduction to IoT and Digital Transformation</h5>
               <span class="cert__org">Cisco Networking Academy · 05 May 2025</span>
             </div>
-          </a>
-          <a class="cert" href="assets/certs/cisco-operating-systems-basics.png" target="_blank" rel="noopener">
+          </button>
+          <button class="cert" type="button">
             <img src="assets/certs/cisco-operating-systems-basics.png" alt="Cisco Networking Academy certificate — Operating Systems Basics" loading="lazy" />
             <div class="cert__meta">
               <h5>Operating Systems Basics</h5>
               <span class="cert__org">Cisco Networking Academy · 05 May 2025</span>
             </div>
-          </a>
-          <a class="cert" href="assets/certs/ids-payment-operations.png" target="_blank" rel="noopener">
+          </button>
+          <button class="cert" type="button">
             <img src="assets/certs/ids-payment-operations.png" alt="Arellano Global certificate — IDS Pagos Payment Operations Platform" loading="lazy" />
             <div class="cert__meta">
               <h5>IDS Pagos — Payment Operations Platform</h5>
               <span class="cert__org">Arellano Global · 28 May 2026</span>
             </div>
-          </a>
-          <a class="cert" href="assets/certs/meridian-delivery-platform.png" target="_blank" rel="noopener">
+          </button>
+          <button class="cert" type="button">
             <img src="assets/certs/meridian-delivery-platform.png" alt="Arellano Global certificate — Meridian Client Delivery & Monitoring Platform" loading="lazy" />
             <div class="cert__meta">
               <h5>Meridian — Client Delivery &amp; Monitoring Platform</h5>
               <span class="cert__org">Arellano Global · 18 June 2026</span>
             </div>
-          </a>
-          <a class="cert" href="assets/certs/growthos-automation-saas.png" target="_blank" rel="noopener">
+          </button>
+          <button class="cert" type="button">
             <img src="assets/certs/growthos-automation-saas.png" alt="Arellano Global certificate — GrowthOS Agency Automation SaaS Platform" loading="lazy" />
             <div class="cert__meta">
               <h5>GrowthOS — Agency Automation SaaS Platform</h5>
               <span class="cert__org">Arellano Global · 05 July 2026</span>
             </div>
-          </a>
+          </button>
         </div>
       </div>
     </section>
@@ -471,7 +471,7 @@
           <span class="brand__mark">
             <svg viewBox="0 0 48 48" aria-hidden="true">
               <defs>
-                <linearGradient id="fgGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#14140F"/><stop offset="1" stop-color="#55554C"/></linearGradient>
+                <linearGradient id="fgGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FAFAF9"/><stop offset="1" stop-color="#C9C7BD"/></linearGradient>
                 <linearGradient id="fgFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a1a1a"/><stop offset="1" stop-color="#0a0a0a"/></linearGradient>
               </defs>
               <rect x="2" y="2" width="44" height="44" rx="13" fill="url(#fgFill)" stroke="url(#fgGrad)" stroke-width="2.5"/>
@@ -496,6 +496,21 @@
       <p class="footer__built">Designed &amp; built by Carlo Ditalo · <a href="https://github.com/Itzyjago" target="_blank" rel="noopener">@Itzyjago</a></p>
     </div>
   </footer>
+
+  <!-- ===== CERTIFICATE MODAL ===== -->
+  <div class="cert-modal" id="certModal" aria-hidden="true">
+    <div class="cert-modal__backdrop" data-cert-close></div>
+    <div class="cert-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="certModalTitle">
+      <button class="cert-modal__close" type="button" data-cert-close aria-label="Close">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
+      <img class="cert-modal__img" id="certModalImg" src="" alt="" />
+      <div class="cert-modal__caption">
+        <h5 id="certModalTitle"></h5>
+        <span id="certModalOrg"></span>
+      </div>
+    </div>
+  </div>
 
   <script src="js/main.js"></script>
 </body>
